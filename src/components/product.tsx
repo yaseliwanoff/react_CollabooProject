@@ -28,7 +28,6 @@ const Product: React.FC<ProductProps> = ({ avatar, title, description, priceOpti
           <h4 className='font-semibold text-[16px]'>{title}</h4>
           <p className='font-normal text-[14px] opacity-55'>{description}</p>
         </div>
-        {/* Разделительная линия */}
         <div className='w-[100%] h-[1px] bg-[#E4E4E7]'></div>
         <div className='flex flex-col mt-4'>
           <div className='grid grid-cols-2 gap-2'>
