@@ -13,10 +13,12 @@ const Main: React.FC<MainProps> = ({ children }) => {
   const showHeader = location.pathname !== '/login' && location.pathname !== '/register';
 
   return (
-    <main className=''>
+    <>
       {showHeader && <Header />}
-      {children}
-    </main>
+      <main className=''>
+        {children}
+      </main>
+    </>
   );
 }
 

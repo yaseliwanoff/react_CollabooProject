@@ -51,7 +51,7 @@ export function LoginForm({
             id="email"
             type="email"
             placeholder="Enter email..."
-            required
+            // required
             value={email}
             onChange={handleEmailChange}
             className={cn({ 'border-red-500': emailError })}
@@ -76,7 +76,7 @@ export function LoginForm({
             id="password"
             type="password"
             placeholder="Enter password..."
-            required
+            // required
             value={password}
             onChange={handlePasswordChange}
             className={cn({ 'border-red-500': !isPasswordValid && password.length > 0 })}
