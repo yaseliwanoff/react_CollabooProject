@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 export default function Register() {
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
-      <div className="flex flex-col gap-4 p-6 md:p-10">
+      <div className="bg-white flex flex-col gap-4 p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
           <Link to={"/"}>
             <a href="#" className="flex items-center gap-2 font-medium">

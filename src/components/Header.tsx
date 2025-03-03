@@ -33,7 +33,7 @@ export default function Header() {
   const [showPanel, setShowPanel] = React.useState<Checked>(false)
 
   return (
-    <header className="bg-white py-3.5 border-b border-[#E4E4E7]">
+    <header className="fixed w-full bg-white py-3.5 border-b border-[#E4E4E7] z-50">
       <div className="container flex items-center justify-between">
         <div>
           <Link to={"/"}>
@@ -48,14 +48,14 @@ export default function Header() {
         <div className="flex items-center gap-6">
           <div>
             <nav className="text-[14px] font-medium flex items-center gap-6">
-              <a className="opacity-50 hover:opacity-75 focus:opacity-100" href="#">Dashboard</a>
-              <a className="opacity-50 hover:opacity-75 focus:opacity-100" href="#">Helpdesk</a>
+              <a className="header-nav-menu" href="#">Dashboard</a>
+              <a className="header-nav-menu" href="#">Helpdesk</a>
             </nav>
           </div>
           <div className="flex items-center gap-6">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline">🇺🇸 ENG <span><img src={ChevronDown} alt="icon" /></span></Button>
+                <Button variant="light">🇺🇸 ENG <span><img src={ChevronDown} alt="icon" /></span></Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56">
                 <DropdownMenuLabel>Language</DropdownMenuLabel>
