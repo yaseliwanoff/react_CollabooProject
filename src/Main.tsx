@@ -9,7 +9,7 @@ interface MainProps {
 const Main: React.FC<MainProps> = ({ children }) => {
   const location = useLocation();
 
-  // Определение, на каких маршрутах должен отоброжаться Header
+  // Определение, на каких маршрутах не должен отоброжаться Header
   const showHeader = location.pathname !== '/login' && location.pathname !== '/register';
 
   return (
