@@ -10,7 +10,7 @@ import {
 interface ButtonProps {
   label: string;
   image: string;
-  onClick: () => void;
+  // onClick: () => void;
 }
 
 interface BannerProps {
@@ -31,7 +31,7 @@ const Banner: React.FC<BannerProps> = ({ title, text, button1, button2 }) => {
         <div className="flex space-x-4">
           <HoverCard>
             <HoverCardTrigger asChild>
-              <Button variant="outline2" onClick={button1.onClick} className="flex items-center">
+              <Button variant="outline2" className="flex items-center">
                 {button1.label} 
                 <img src={button1.image} alt="icon" className="icon ml-2" />
               </Button>
@@ -52,7 +52,7 @@ const Banner: React.FC<BannerProps> = ({ title, text, button1, button2 }) => {
               </div>
             </HoverCardContent>
           </HoverCard>
-          <Button variant="secondary" onClick={button2.onClick} className="flex items-center">
+          <Button variant="secondary" className="flex items-center">
             {button2.label} 
             <img src={button2.image} alt="icon" className="ml-2" />
           </Button>

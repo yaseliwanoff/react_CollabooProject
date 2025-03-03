@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from "@/assets/images/svg/link.svg";
 import { Button } from '@/components/ui/button';
+import { Badge } from "@/components/ui/badge";
 
 interface PriceOption {
   price: string;
@@ -11,10 +12,12 @@ interface ProductProps {
   avatar: string;
   title: string;
   description: string;
+  active: boolean;
   priceOptions: PriceOption[];
+  onOrderClick: (product: any) => void;
 }
 
-const Product: React.FC<ProductProps> = ({ avatar, title, description, priceOptions }) => {
+const Product: React.FC<ProductProps> = ({ avatar, title, description, active, priceOptions, onOrderClick }) => {
   return (
     <div className="bg-white flex font-[Inter] flex-col w-[310px] h-[478px] rounded-[12px] border border-[#E4E4E7] py-6 px-6">
       <div className='flex flex-col flex-grow'>
@@ -25,7 +28,10 @@ const Product: React.FC<ProductProps> = ({ avatar, title, description, priceOpti
           </button>
         </div>
         <div className='mt-6 flex-grow'>
-          <h4 className='font-semibold text-[16px]'>{title}</h4>
+          <div className='flex items-center gap-2'>
+            <h4 className='font-semibold text-[16px]'>{title}</h4>
+            {!active && <Badge variant={"warning"}>Inactive</Badge>}
+          </div>
           <p className='font-normal text-[14px] opacity-55'>{description}</p>
         </div>
         <div className='w-[100%] h-[1px] bg-[#E4E4E7]'></div>
@@ -44,10 +50,10 @@ const Product: React.FC<ProductProps> = ({ avatar, title, description, priceOpti
         </div>
       </div>
       <div className='mt-4'>
-        <Button variant={"full"}>Order</Button>
+        <Button variant={"full"} onClick={() => onOrderClick({ title, description })}>Order</Button>
       </div>
     </div>
-  )
+  );
 }
 
 export default Product;

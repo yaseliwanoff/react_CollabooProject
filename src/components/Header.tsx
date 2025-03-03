@@ -35,7 +35,7 @@ export default function Header() {
 
   return (
     <header className="fixed w-full bg-white py-3.5 border-b border-[#E4E4E7] z-50">
-      <div className="container flex items-center justify-between">
+      <div className="container1 flex items-center justify-between">
         <div>
           <Link to={"/"}>
             <a href="" className="flex items-center gap-2">

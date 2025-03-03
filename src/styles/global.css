@@ -5,6 +5,10 @@
 
 @custom-variant dark (&:is(.dark *));
 
+::-webkit-scrollbar {
+  width: 0;
+}
+
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
@@ -139,23 +143,40 @@
 } */
 
 /* Конфигурация контейнера на tailwind 4 */
-@utility container {
-  width: 100%;
-  margin-inline: auto;
-
+@layer utilities {
   @variant sm {
-    padding-right: 20px;
-    padding-left: 20px;
-    min-width: 360px;
+    .container1 {
+      width: 100%;
+      min-width: 360px;
+      padding-inline: auto;
+      margin-inline: auto; /* Центрируем контейнер */
+    }
   }
 
   @variant md {
-    padding-right: 40px;
-    padding-left: 40px;
-    min-width: 768px;
+    .container1 {
+      width: 100%;
+      min-width: 768px;
+      padding-inline: auto;
+      margin-inline: auto; /* Центрируем контейнер */
+    }
   }
 
   @variant lg {
-    max-width: 1200px;
+    .container1 {
+      width: 100%;
+      min-width: 1200px;
+      padding-inline: auto;
+      margin-inline: auto; /* Центрируем контейнер */
+    }
+  }
+
+  /* Дефолтный контейнер */
+  .container1 {
+    width: 100%;
+    max-width: 1200px; /* Ограничиваем максимальную ширину */
+    padding-inline: auto;
+    margin-inline: auto; /* Центрируем контейнер */
   }
 }
+
