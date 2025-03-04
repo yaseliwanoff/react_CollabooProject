@@ -1,23 +1,24 @@
 // import { useState } from "react";
 "use client"
- 
+
 import * as React from "react";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Link } from "react-router-dom";
 import Logo from "@/assets/images/svg/logo.svg";
 import Lighting from "@/assets/images/svg/lightning.svg";
 import AvatarImg from "@/assets/images/png/avatar.png";
-import ChevronDown from "@/assets/images/svg/ChevronDown.svg";
+// import ChevronDown from "@/assets/images/svg/ChevronDown.svg";
 
 type Checked = DropdownMenuCheckboxItemProps["checked"];
 
@@ -28,9 +29,9 @@ export default function Header() {
   //   setIsOpen(!isOpen);
   // };
 
-  const [showStatusBar, setShowStatusBar] = React.useState<Checked>(true)
-  const [showActivityBar, setShowActivityBar] = React.useState<Checked>(false)
-  const [showPanel, setShowPanel] = React.useState<Checked>(false)
+  // const [showStatusBar, setShowStatusBar] = React.useState<Checked>(true)
+  // const [showActivityBar, setShowActivityBar] = React.useState<Checked>(false)
+  // const [showPanel, setShowPanel] = React.useState<Checked>(false)
 
   return (
     <header className="fixed w-full bg-white py-3.5 border-b border-[#E4E4E7] z-50">
@@ -53,33 +54,18 @@ export default function Header() {
             </nav>
           </div>
           <div className="flex items-center gap-6">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="light">🇺🇸 ENG <span><img src={ChevronDown} alt="icon" /></span></Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56">
-                <DropdownMenuLabel>Language</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuCheckboxItem
-                  checked={showStatusBar}
-                  onCheckedChange={setShowStatusBar}
-                >
-                  🇺🇸 ENG
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem
-                  checked={showActivityBar}
-                  onCheckedChange={setShowActivityBar}
-                >
-                  🇺🇸 ENG
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem
-                  checked={showPanel}
-                  onCheckedChange={setShowPanel}
-                >
-                  ENG
-                </DropdownMenuCheckboxItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Select>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select a language" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Languages</SelectLabel>
+                  <SelectItem value="apple">🇺🇸 ENG</SelectItem>
+                  <SelectItem value="banana">🇷🇺 RUS</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
             <Button>
               <span><img src={Lighting} alt="icon" /></span>
               Get Free Access

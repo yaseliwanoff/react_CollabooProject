@@ -1,15 +1,34 @@
-import React from "react";
+import React, { useState } from "react";
 import Banner from "@/components/ui/banner";
 import Ticket from "@/assets/images/svg/Ticket.svg";
 import ArrowRight from "@/assets/images/svg/ArrowRight.svg";
 import MobbinAvatar from "@/assets/images/svg/mobbin-avatar.svg";
 import UxMovement from "@/assets/images/svg/ux-movement.svg";
+import { Input } from "@/components/ui/search-input";
 import Product from "@/components/product";
+import Search from "@/assets/images/svg/search.svg";
+// import { Button } from "@/components/ui/button";
+// import {
+//   Card,
+//   CardContent,
+//   CardDescription,
+//   CardFooter,
+//   CardHeader,
+//   CardTitle,
+// } from "@/components/ui/card";
+// import { Input } from "@/components/ui/input";
+// import { Label } from "@/components/ui/label";
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 
 // Временные тестовые данные
 const productData = [
   {
     id: 0,
+    active: true,
     avatar: MobbinAvatar,
     title: "Mobbin",
     description: "Discover real-world design inspiration. Featuring over 300,000 screens and 1,000 iOS, Android & Web apps — New content every week.",
@@ -21,6 +40,7 @@ const productData = [
   },
   {
     id: 1,
+    active: false,
     avatar: UxMovement,
     title: "UX Movement",
     description: "A professional publication to teach you how to design interfaces that are user-friendly and intuitive to use.",
@@ -32,6 +52,7 @@ const productData = [
   },
   {
     id: 2,
+    active: true,
     avatar: UxMovement,
     title: "UX Movement",
     description: "A professional publication to teach you how to design interfaces that are user-friendly and intuitive to use.",
@@ -43,6 +64,7 @@ const productData = [
   },
   {
     id: 3,
+    active: false,
     avatar: UxMovement,
     title: "UX Movement",
     description: "A professional publication to teach you how to design interfaces that are user-friendly and intuitive to use.",
@@ -55,6 +77,8 @@ const productData = [
 ];
 
 const Dashboard: React.FC = () => {
+  const [activeTab, setActiveTab] = useState("all");
+
   const handleButton1Click = () => {
     console.log('Button 1 clicked');
   };
@@ -62,6 +86,13 @@ const Dashboard: React.FC = () => {
   const handleButton2Click = () => {
     console.log('Button 2 clicked');
   };
+
+  const filteredProducts = productData.filter(product => {
+    if (activeTab === "all") return true;
+    if (activeTab === "active") return product.active;
+    if (activeTab === "inactive") return !product.active;
+    return true;
+  });
 
   return (
     <section className="bg-[#FBFBFB] text-[#1B1B1B]">
@@ -83,8 +114,22 @@ const Dashboard: React.FC = () => {
                 button2={{ label: 'View plans', image: ArrowRight, onClick: handleButton2Click }}
               />
             </div>
+            <div className="mt-[32px] flex items-center justify-between">
+              <div>
+                <Tabs defaultValue="all" className="w-[400px]" onValueChange={setActiveTab}>
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="all">All</TabsTrigger>
+                    <TabsTrigger value="active">Active</TabsTrigger>
+                    <TabsTrigger value="inactive">Inactive</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+              <div>
+                <Input type="text" image={Search} placeholder="Search" />
+              </div>
+            </div>
             <div className="flex flex-wrap mt-5 gap-[13px]">
-              {productData.map((productItem) => {
+              {filteredProducts.map((productItem) => {
                 return (
                   <Product
                     key={productItem.id}
