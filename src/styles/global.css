@@ -180,3 +180,69 @@
   }
 }
 
+@layer utilities {
+  @variant sm {
+    .container2 {
+      width: 100%;
+      min-width: 360px;
+      padding-inline: auto;
+      margin-inline: auto; /* Центрируем контейнер */
+    }
+  }
+
+  @variant md {
+    .container2 {
+      width: 100%;
+      min-width: 768px;
+      padding-inline: auto;
+      margin-inline: auto; /* Центрируем контейнер */
+    }
+  }
+
+  @variant lg {
+    .container2 {
+      width: 100%;
+      min-width: 864px;
+      padding-inline: auto;
+      margin-inline: auto; /* Центрируем контейнер */
+    }
+  }
+
+  /* Дефолтный контейнер */
+  .container2 {
+    width: 100%;
+    max-width: 864px; /* Ограничиваем максимальную ширину */
+    padding-inline: auto;
+    margin-inline: auto; /* Центрируем контейнер */
+  }
+}
+
+/* Стили для радиокнопок */
+input[type="radio"] {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #E4E4E7;
+  border-radius: 50%;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.2s;
+}
+
+input[type="radio"]:checked {
+  border-color: black;
+}
+
+input[type="radio"]:checked::after {
+  content: "";
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: black;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

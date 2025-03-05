@@ -27,7 +27,7 @@ const PurchasedProduct: React.FC<PurchasedProductProps> = ({ avatar, title, desc
           <span className="font-semibold">Active till</span>
           <span className="font-normal text-[#71717A]">01.01.2025</span>
         </div>
-        <div className="flex gap-1">
+        <div className="flex gap-3">
           <Button variant={"default"}>Connect #1</Button>
           <Button variant={"default"}>Connect #2</Button>
         </div>

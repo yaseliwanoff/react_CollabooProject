@@ -5,7 +5,7 @@ interface InputProps extends React.ComponentProps<"input"> {
   image?: string;
 }
 
-const Input: React.FC<InputProps> = ({ className, type, image, ...props }) => {
+const InputSearch: React.FC<InputProps> = ({ className, type, image, ...props }) => {
   return (
     <div className="relative flex items-center">
       {image && (
@@ -30,4 +30,4 @@ const Input: React.FC<InputProps> = ({ className, type, image, ...props }) => {
   );
 };
 
-export { Input };
+export { InputSearch };
