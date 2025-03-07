@@ -9,8 +9,7 @@ import {
 
 interface ButtonProps {
   label: string;
-  image: string;
-  // onClick: () => void;
+  image: React.ReactElement;
 }
 
 interface BannerProps {
@@ -31,18 +30,18 @@ const Banner: React.FC<BannerProps> = ({ title, text, button1, button2 }) => {
         <div className="flex space-x-4">
           <HoverCard>
             <HoverCardTrigger asChild>
-              <Button variant="outline2" className="flex items-center">
-                {button1.label} 
-                <img src={button1.image} alt="icon" className="icon ml-2" />
-              </Button>
+            <Button variant="outline2" className="flex items-center button">
+              {button1.label} 
+              <div className='icon'>
+                {React.isValidElement(button1.image) && React.cloneElement(button1.image)}
+              </div>
+            </Button>
             </HoverCardTrigger>
             <HoverCardContent className="w-[480px]">
               <div className="flex items-start space-x-4">
                 <img src={WarningImg} width={16} height={16} className='mt-1' alt="warning icon" />
                 <div className="space-y-1 items-start flex flex-col">
-                  <p className="text-sm">
-                    How to activate coupon
-                  </p>
+                  <p className="text-sm">How to activate coupon</p>
                   <div className="flex items-center">
                     <span className="text-xs text-muted-foreground">
                       Select the subscription you need, go to payment page and enter the coupon you have.
@@ -54,7 +53,7 @@ const Banner: React.FC<BannerProps> = ({ title, text, button1, button2 }) => {
           </HoverCard>
           <Button variant="secondary" className="flex items-center">
             {button2.label} 
-            <img src={button2.image} alt="icon" className="ml-2" />
+            {React.isValidElement(button2.image) && React.cloneElement(button2.image)}
           </Button>
         </div>
       </div>

@@ -119,6 +119,29 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+.coupon-icon {
+  color: white;
+  transition: color 0.3s ease;
+}
+
+.button:hover .coupon-icon {
+  color: black;
+}
+
+.loader {
+  border: 2px solid #000000;
+  border-top: 8px solid #ffffff;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -138,10 +161,6 @@
   }
 }
 
-/* .button-sidebar:hover .icon {
-  filter: brightness(0) invert(1);
-} */
-
 /* Конфигурация контейнера на tailwind 4 */
 @layer utilities {
   @variant sm {
@@ -149,7 +168,7 @@
       width: 100%;
       min-width: 360px;
       padding-inline: auto;
-      margin-inline: auto; /* Центрируем контейнер */
+      margin-inline: auto;
     }
   }
 
@@ -158,7 +177,7 @@
       width: 100%;
       min-width: 768px;
       padding-inline: auto;
-      margin-inline: auto; /* Центрируем контейнер */
+      margin-inline: auto;
     }
   }
 
@@ -167,16 +186,16 @@
       width: 100%;
       min-width: 1200px;
       padding-inline: auto;
-      margin-inline: auto; /* Центрируем контейнер */
+      margin-inline: auto;
     }
   }
 
   /* Дефолтный контейнер */
   .container1 {
     width: 100%;
-    max-width: 1200px; /* Ограничиваем максимальную ширину */
+    max-width: 1200px;
     padding-inline: auto;
-    margin-inline: auto; /* Центрируем контейнер */
+    margin-inline: auto;
   }
 }
 
@@ -186,7 +205,7 @@
       width: 100%;
       min-width: 360px;
       padding-inline: auto;
-      margin-inline: auto; /* Центрируем контейнер */
+      margin-inline: auto;
     }
   }
 
@@ -195,7 +214,7 @@
       width: 100%;
       min-width: 768px;
       padding-inline: auto;
-      margin-inline: auto; /* Центрируем контейнер */
+      margin-inline: auto;
     }
   }
 
@@ -204,16 +223,16 @@
       width: 100%;
       min-width: 864px;
       padding-inline: auto;
-      margin-inline: auto; /* Центрируем контейнер */
+      margin-inline: auto;
     }
   }
 
   /* Дефолтный контейнер */
   .container2 {
     width: 100%;
-    max-width: 864px; /* Ограничиваем максимальную ширину */
+    max-width: 864px;
     padding-inline: auto;
-    margin-inline: auto; /* Центрируем контейнер */
+    margin-inline: auto;
   }
 }
 
