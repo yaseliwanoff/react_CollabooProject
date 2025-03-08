@@ -13,6 +13,8 @@ export function RegisterForm({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const isEmailValid = (email: string) => {
     const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -22,22 +24,55 @@ export function RegisterForm({
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setEmail(value);
-    if (!isEmailValid(value)) {
-      setEmailError("Invalid email format.");
-    } else {
-      setEmailError("");
-    }
+    setEmailError(""); // Убираем сообщение об ошибке при изменении
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
+    setPasswordError(""); // Убираем сообщение об ошибке при изменении
   };
 
   const isPasswordValid = password.length >= 8;
-  const showMinLengthMessage = password.length > 0 && !isPasswordValid;
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitted(true);
+
+    // Проверяем валидацию только при отправке формы
+    if (!isEmailValid(email)) {
+      setEmailError("Invalid email format.");
+    }
+    if (!isPasswordValid) {
+      setPasswordError("Minimum length – 8 symbols");
+    }
+
+    // Если валидация прошла, отправляем данные на сервер
+    if (isEmailValid(email) && isPasswordValid) {
+      try {
+        const response = await fetch("https://your-api-endpoint.com/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const data = await response.json();
+        console.log("Registration successful:", data);
+        // Здесь можно добавить логику для обработки успешной регистрации, например, перенаправление пользователя
+      } catch (error) {
+        console.error("Error during registration:", error);
+        // Здесь можно обработать ошибку, например, показать сообщение об ошибке
+      }
+    }
+  };
 
   return (
-    <form className={cn("flex flex-col gap-6 font-[Inter]", className)} {...props}>
+    <form className={cn("flex flex-col gap-6 font-[Inter]", className)} onSubmit={handleSubmit} {...props}>
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Create new account</h1>
         <p className="text-muted-foreground text-sm text-balance">
@@ -51,12 +86,11 @@ export function RegisterForm({
             id="email"
             type="email"
             placeholder="Enter email..."
-            // required
             value={email}
             onChange={handleEmailChange}
-            className={cn({ 'border-red-500': emailError })}
+            className={cn({ 'border-red-500': isSubmitted && emailError })}
           />
-          {emailError && (
+          {isSubmitted && emailError && (
             <span className="text-[14px] font-light opacity-60">
               {emailError}
             </span>
@@ -76,14 +110,13 @@ export function RegisterForm({
             id="password"
             type="password"
             placeholder="Enter password..."
-            // required
             value={password}
             onChange={handlePasswordChange}
-            className={cn({ 'border-red-500': !isPasswordValid && password.length > 0 })}
+            className={cn({ 'border-red-500': isSubmitted && passwordError })}
           />
-          {showMinLengthMessage && (
+          {isSubmitted && passwordError && (
             <span className="text-[14px] font-light opacity-60">
-              Minimum length – 8 symbols
+              {passwordError}
             </span>
           )}
         </div>
@@ -101,7 +134,7 @@ export function RegisterForm({
         </Button>
       </div>
       <div className="text-center text-sm">
-        Don&apos;t have an account?{" "}
+        Already have an account?{" "}
         <Link to="/login" className="underline underline-offset-4">
           Sign in
         </Link>
