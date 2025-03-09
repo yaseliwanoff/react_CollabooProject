@@ -10,6 +10,7 @@ import PurchasedProduct from "@/components/PurchasedProduct";
 import { Badge } from "@/components/ui/badge";
 import Search from "@/assets/images/svg/search.svg";
 import PayPal from "@/assets/images/svg/paypal.svg";
+import { XIcon } from "lucide-react";
 import {
   Tabs,
   TabsList,
@@ -29,6 +30,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetDescription,
+  SheetClose,
 } from "@/components/ui/sheet";
 
 // Временные тестовые данные
@@ -90,16 +92,29 @@ const Dashboard: React.FC = () => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null);
 
   const handleMakePayment = () => {
+    const cisPaymentMethods = [
+      "sbp_transfer",
+      "card_payment_ua",
+      "card_payment_kzz",
+      "card_payment_uz"
+    ];
 
-    setIsLoading(true);
-    // Открытие новой вкладки с BuyLoading
-    window.open('/buy-loading', '_blank');
-  
-    // Симуляция процесса платежа
-    // setTimeout(() => {
-    //   setIsLoading(false);
-    //   // setIsSheetOpen(false); // Закрываем Sheet после завершения
-    // }, 4000); // Задержка 4 секунды
+    const worldPaymentMethods = [
+      "sbp_payment",
+      "PayPal",
+      "Crypto",
+      "WebMoney"
+    ];
+
+    if (selectedPaymentMethod && cisPaymentMethods.includes(selectedPaymentMethod)) {
+      setIsLoading(true);
+      window.open('/buy-loading-cis', '_blank');
+    }
+
+    if (selectedPaymentMethod && worldPaymentMethods.includes(selectedPaymentMethod)) {
+      setIsLoading(true);
+      window.open('/buy-loading-word', '_blank');
+    }
   };
 
   const handlePaymentMethodChange = (method: string) => {
@@ -109,6 +124,15 @@ const Dashboard: React.FC = () => {
   const handleOrderClick = (product: any) => {
     setSelectedProduct(product); // Установка выбранного продукта
     setIsSheetOpen(true); // Открытие Sheet
+  };
+
+  const handleCancel = () => {
+    // Завершаем загрузку
+    setIsLoading(false);
+    // Очищаем выбранный метод оплаты
+    setSelectedPaymentMethod(null);
+    // Закрываем Sheet
+    // setIsSheetOpen(false);
   };
 
   const filteredProducts = productData.filter(product => {
@@ -251,19 +275,41 @@ const Dashboard: React.FC = () => {
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetContent side="bottom">
           {isLoading ? (
-            <div className="flex justify-center items-center h-[500px]">
-              <div className="flex flex-col gap-2 justify-center items-center">
-                <div className="loader"></div> 
-                <div>
-                  <p>Complete payment in another window</p>
+            <>
+              <SheetHeader>
+                <div className="container2">
+                  <div className="flex gap-3">
+                    <div>
+                      <img src={selectedProduct ? selectedProduct.avatar : ""} alt="Product Avatar" className="w-16 h-16 rounded-full" />
+                    </div>
+                    <div>
+                      <div>
+                        <SheetTitle>{selectedProduct ? selectedProduct.title : "Product Details"}</SheetTitle>
+                      </div>
+                      <div>
+                        <SheetDescription>{selectedProduct ? selectedProduct.description : "No description available."}</SheetDescription>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="w-[100%] h-[1px] bg-[#E4E4E7] mt-[32px]"></div>
                 </div>
-                <div>
-                  <Button variant={"light"} onClick={() => setIsSheetOpen(false)}>
-                    Cancel
-                  </Button>
+              </SheetHeader>
+              <div className="flex justify-center items-center h-[500px]">
+                <div className="flex flex-col gap-2 justify-center items-center">
+                  <div className="loader"></div>
+                  <div className="w-[318px]">
+                    <div className="flex flex-col justify-center items-center mb-4">
+                      <p>Complete payment in another window</p>
+                    </div>
+                    <div>
+                      <Button variant={"full_light"} onClick={handleCancel}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            </>
           ) : (
             <>
               <SheetHeader>

@@ -11,10 +11,12 @@ const buttonVariants = cva(
       variant: {
         default:
           "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
-        full:
-            "bg-primary text-primary-foreground w-[100%] py-[8px focus:bg-[#8B8B8D] easy-in-out duration-200 shadow-xs hover:bg-primary/90",
+        full_dark:
+          "bg-primary text-primary-foreground w-[100%] py-[8px focus:bg-[#8B8B8D] easy-in-out duration-200 shadow-xs hover:bg-primary/90",
+        full_light:
+          "bg-[#ffffff] text-[#1b1b1b w-[100%] py-[8px] border border-[#E4E4E7] shadow-xs hover:bg-[#ffffff]/30",
         light:
-          "bg-[#ffffff] text-[#1b1b1b border border-[#E4E4E7] shadow-xs hover:bg-[#ffffff]/30",
+          "bg-[#ffffff] text-[#1b1b1b] border border-[#E4E4E7] shadow-xs hover:bg-[#ffffff]/30",
         outline2:
           "border border-white text-white bg-transparent shadow-xs hover:bg-white hover:text-black",
         destructive:

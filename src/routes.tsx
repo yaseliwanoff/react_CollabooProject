@@ -3,7 +3,8 @@ import { Route, Routes } from 'react-router-dom';
 import Dashboard from '@/pages/Dashboard';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
-import BuyLoading from '@/pages/BuyLoading';
+import BuyLoadingCIS from '@/pages/BuyLoadingCIS';
+import BuyLoadingWord from '@/pages/BuyLoadingWord';
 
 const AppRoutes: React.FC = () => {
   return (
@@ -11,7 +12,8 @@ const AppRoutes: React.FC = () => {
       <Route path="/" element={<Dashboard />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path='/buy-loading' element={<BuyLoading />} />
+      <Route path='/buy-loading-cis' element={<BuyLoadingCIS />} />
+      <Route path='/buy-loading-word' element={<BuyLoadingWord />} />
     </Routes>
   );
 };

@@ -50,7 +50,7 @@ const Product: React.FC<ProductProps> = ({ avatar, title, description, active, p
         </div>
       </div>
       <div className='mt-4'>
-        <Button variant={"full"} onClick={() => onOrderClick({ title, description, avatar })}>Order</Button>
+        <Button variant={"full_dark"} onClick={() => onOrderClick({ title, description, avatar })}>Order</Button>
       </div>
     </div>
   );
