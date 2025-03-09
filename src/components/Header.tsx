@@ -1,7 +1,3 @@
-// import { useState } from "react";
-"use client"
-
-import * as React from "react";
 import {
   Select,
   SelectContent,
@@ -13,38 +9,34 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
-import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
 import { Link } from "react-router-dom";
 import Logo from "@/assets/images/svg/logo.svg";
 import Lighting from "@/assets/images/svg/lightning.svg";
 import AvatarImg from "@/assets/images/png/avatar.png";
-// import ChevronDown from "@/assets/images/svg/ChevronDown.svg";
-
-type Checked = DropdownMenuCheckboxItemProps["checked"];
+import Subscribe from "@/assets/images/svg/Subscribe.svg";
+import Settings from "@/assets/images/svg/Settings.svg";
+import LogOut from "@/assets/images/svg/LogOut.svg";
+import Payments from "@/assets/images/svg/Payments.svg";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function Header() {
-  // const [isOpen, setIsOpen] = useState(false);
-
-  // const toggleDropdown = () => {
-  //   setIsOpen(!isOpen);
-  // };
-
-  // const [showStatusBar, setShowStatusBar] = React.useState<Checked>(true)
-  // const [showActivityBar, setShowActivityBar] = React.useState<Checked>(false)
-  // const [showPanel, setShowPanel] = React.useState<Checked>(false)
-
   return (
     <header className="fixed w-full bg-white py-3.5 border-b border-[#E4E4E7] z-50">
       <div className="container1 flex items-center justify-between">
         <div>
-          <Link to={"/"}>
             <a href="" className="flex items-center gap-2">
               <span>
                 <img src={Logo} alt="logo" />
               </span>
               <span className="font-semibold">Collaboo</span>
             </a>
-          </Link>
         </div>
         <div className="flex items-center gap-6">
           <div>
@@ -72,9 +64,45 @@ export default function Header() {
             </Button>
           </div>
           <div>
-            <Avatar>
-              <img width={36} height={36} src={AvatarImg} alt="avatar" />
-            </Avatar>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Avatar>
+                  <img width={36} height={36} src={AvatarImg} alt="avatar" />
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56">
+                <div className="flex items-center p-2">
+                  <Avatar className="mr-2">
+                    <img width={36} height={36} src={AvatarImg} alt="avatar" />
+                  </Avatar>
+                  <div className="flex flex-col">
+                    <span className="font-semibold text-[14px]">user123451</span>
+                    <span className="text-gray-500 text-[12px]">m@example.com</span>
+                  </div>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem>
+                    <img src={Subscribe} alt="Subscribe" />
+                    <span>Get subscription</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <img src={Settings} alt="Settings" />
+                    <span>Settings</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <img src={Payments} alt="Payments" />
+                    <span>Payments</span>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <img src={LogOut} alt="Log out" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>

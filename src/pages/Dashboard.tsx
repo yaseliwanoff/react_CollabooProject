@@ -90,12 +90,16 @@ const Dashboard: React.FC = () => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null);
 
   const handleMakePayment = () => {
+
     setIsLoading(true);
+    // Открытие новой вкладки с BuyLoading
+    window.open('/buy-loading', '_blank');
+  
     // Симуляция процесса платежа
-    setTimeout(() => {
-      setIsLoading(false);
-      setIsSheetOpen(false); // Закрываем Sheet после завершения
-    }, 4000); // Задержка 4 секунды
+    // setTimeout(() => {
+    //   setIsLoading(false);
+    //   // setIsSheetOpen(false); // Закрываем Sheet после завершения
+    // }, 4000); // Задержка 4 секунды
   };
 
   const handlePaymentMethodChange = (method: string) => {
@@ -402,7 +406,7 @@ const Dashboard: React.FC = () => {
                       </div>
                     </div>
                     <div className="mt-4">
-                      <h3 className="font-semibold">Payment method (world)</h3>
+                      <h3 className="font-semibold">Payment method (CIS countries)</h3>
                       <div className="mt-2 flex flex-col gap-3">
                         <div className="items-top space-x-2 border border-[#E4E4E7] hover:border-[#000000] ease-in-out duration-300 rounded-[8px] py-[8px] px-[8px] shadow shadow-black/5">
                           <div className="flex justify-between items-center">
