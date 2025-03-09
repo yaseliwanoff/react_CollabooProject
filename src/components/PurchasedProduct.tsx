@@ -11,11 +11,11 @@ const PurchasedProduct: React.FC<PurchasedProductProps> = ({ avatar, title, desc
   return (
     <div className="bg-white flex font-[Inter] flex-col w-[471px] h-[402px] rounded-[12px] border border-[#E4E4E7] py-6 px-6">
       <div className="flex flex-col flex-grow">
-        <div className="mt-6 flex-grow">
+        <div className="flex-grow">
           <div className="flex justify-between items-start">
             {avatar && <img src={avatar} alt="company logo" className="w-[40px] h-[40px]" />}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex mt-4 items-center gap-2">
             <h4 className="font-semibold text-[16px]">{title}</h4>
           </div>
           <p className="font-normal text-[14px] opacity-55">{description}</p>

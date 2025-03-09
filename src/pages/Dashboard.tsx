@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Banner from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import MobbinAvatar from "@/assets/images/svg/mobbin-avatar.svg";
@@ -10,7 +10,7 @@ import PurchasedProduct from "@/components/PurchasedProduct";
 import { Badge } from "@/components/ui/badge";
 import Search from "@/assets/images/svg/search.svg";
 import PayPal from "@/assets/images/svg/paypal.svg";
-import { XIcon } from "lucide-react";
+// import { XIcon } from "lucide-react";
 import {
   Tabs,
   TabsList,
@@ -30,7 +30,6 @@ import {
   SheetHeader,
   SheetTitle,
   SheetDescription,
-  SheetClose,
 } from "@/components/ui/sheet";
 
 // Временные тестовые данные
@@ -76,7 +75,7 @@ const productData = [
 const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [purchasedSubscriptions] = useState<any[]>([]);
+  const [purchasedSubscriptions, setPurchasedSubscriptions] = useState<any[]>([]);
   const [statusTexts, setStatusTexts] = useState<string[]>(Array(5).fill("Expired"));
   const data = [
     { date: "04.02.2025", subscription: "#p1502251 Mobbin - 1 month", price: "3$" },
@@ -90,6 +89,7 @@ const Dashboard: React.FC = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null);
+  const [loadingText, setLoadingText] = useState("Complete payment in another tab");
 
   const handleMakePayment = () => {
     const cisPaymentMethods = [
@@ -113,7 +113,20 @@ const Dashboard: React.FC = () => {
 
     if (selectedPaymentMethod && worldPaymentMethods.includes(selectedPaymentMethod)) {
       setIsLoading(true);
+      setLoadingText("Receiving credentials");
       window.open('/buy-loading-word', '_blank');
+
+      setTimeout(() => {
+        setPurchasedSubscriptions(prev => [
+          ...prev,
+          {
+            avatar: selectedProduct.avatar,
+            title: selectedProduct.title,
+            description: selectedProduct.description,
+          }
+        ]);
+        setLoadingText("Complete payment in another tab");
+      }, 3000);
     }
   };
 
@@ -140,6 +153,8 @@ const Dashboard: React.FC = () => {
     const matchesSearchTerm = product.title.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesActiveTab && matchesSearchTerm;
   });
+
+  const isPaymentMethodSelected = selectedPaymentMethod !== null;
 
   return (
     <section className="bg-[#FBFBFB] text-[#1B1B1B]">
@@ -299,7 +314,7 @@ const Dashboard: React.FC = () => {
                   <div className="loader"></div>
                   <div className="w-[318px]">
                     <div className="flex flex-col justify-center items-center mb-4">
-                      <p>Complete payment in another window</p>
+                      <p>{loadingText}</p>
                     </div>
                     <div>
                       <Button variant={"full_light"} onClick={handleCancel}>
@@ -618,7 +633,7 @@ const Dashboard: React.FC = () => {
                     </div>
 
                     <div className="flex flex-col gap-2 mt-auto">
-                      <Button variant={"default"} onClick={handleMakePayment}>
+                      <Button variant={"default"} onClick={handleMakePayment} disabled={!isPaymentMethodSelected}>
                         Make payment
                       </Button>
                       <Button variant={"light"} onClick={() => setIsSheetOpen(false)}>
