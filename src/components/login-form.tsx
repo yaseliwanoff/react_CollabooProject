@@ -23,13 +23,11 @@ export function LoginForm({
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
-    // Убираем сообщение об ошибке при изменении
     setEmailError("");
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
-    // Убираем сообщение об ошибке при изменении
     setPasswordError("");
   };
 
@@ -39,7 +37,6 @@ export function LoginForm({
     e.preventDefault();
     setIsSubmitted(true);
 
-    // Проверяем валидацию только при отправке формы
     if (!isEmailValid(email)) {
       setEmailError("Invalid email format.");
     }
@@ -55,7 +52,6 @@ export function LoginForm({
   };
 
   if (isEmailValid(email) && isPasswordValid) {
-    // Здесь можно добавить логику для отправки данных
     console.log("Form submitted successfully");
   }
 

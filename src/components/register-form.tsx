@@ -24,12 +24,12 @@ export function RegisterForm({
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setEmail(value);
-    setEmailError(""); // Убираем сообщение об ошибке при изменении
+    setEmailError("");
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
-    setPasswordError(""); // Убираем сообщение об ошибке при изменении
+    setPasswordError("");
   };
 
   const isPasswordValid = password.length >= 8;
@@ -38,7 +38,6 @@ export function RegisterForm({
     e.preventDefault();
     setIsSubmitted(true);
 
-    // Проверяем валидацию только при отправке формы
     if (!isEmailValid(email)) {
       setEmailError("Invalid email format.");
     }
@@ -46,10 +45,9 @@ export function RegisterForm({
       setPasswordError("Minimum length – 8 symbols");
     }
 
-    // Если валидация прошла, отправляем данные на сервер
     if (isEmailValid(email) && isPasswordValid) {
       try {
-        const response = await fetch("https://your-api-endpoint.com/register", {
+        const response = await fetch("https://api_link", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
