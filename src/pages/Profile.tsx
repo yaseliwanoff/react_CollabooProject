@@ -1,0 +1,162 @@
+import React, { useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Avatar } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import Drag from "@/assets/images/svg/Drag.svg";
+import AvatarImg from "@/assets/images/png/avatar.png";
+
+const Profile: React.FC = () => {
+  const [activeTab, setActiveTab] = useState('profile');
+  const [newPassword, setNewPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleNewPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setNewPassword(value);
+
+    // Проверка длины пароля
+    if (value.length < 8) {
+      setError('Your password must contain at least 8 characters');
+    } else {
+      setError('');
+      // Тут можно реализовать логику замену пароля
+    }
+  };
+
+  return (
+    <section className="container1 font-[Inter] font-normal text-[#18181B]">
+      <div className="container1 pt-[55px]">
+        <div className="w-full pt-10 mb-8">
+          <h1 className="font-semibold text-[30px]">Settings</h1>
+        </div>
+        <div className="flex h-screen text-[Inter]">
+          <aside className="w-1/5 flex flex-col text-[14px]">
+            <button 
+              className="button-sidebar" 
+              onClick={() => setActiveTab('profile')}
+            >
+              Profile
+            </button>
+            <button 
+              className="button-sidebar" 
+              onClick={() => setActiveTab('security')}
+            >
+              Security
+            </button>
+          </aside>
+          <div className="w-4/5">
+            {activeTab === 'profile' && (
+              <div className='w-full p-6 bg-white border border-[#E4E4E7] rounded-[8px]'>
+                <div className='border-b pb-6 border-[#E4E4E7]'>
+                  <h2 className='text-[20px] font-semibold'>Profile</h2>
+                  <p className='text-[#71717A] text-[14px]'>Set up out your profile</p>
+                </div>
+                <div className='border-b pb-6 mt-6 border-[#E4E4E7]'>
+                  <div className='flex items-center gap-2 justify-between w-full'>
+                    <div className='w-1/2'>
+                      <h2 className='text-[14px] font-semibold'>Username</h2>
+                      <p className='text-[#71717A] text-[14px]'>Used when you contact support team</p>
+                    </div>
+                    <div className='w-1/2'>
+                      <Input className="w-full" placeholder='username' defaultValue={"user12345"} />
+                    </div>
+                  </div>
+                </div>
+                <div className='border-b pb-6 mt-6 border-[#E4E4E7]'>
+                  <div className='flex items-center gap-2 justify-between w-full'>
+                    <div className='w-1/2'>
+                      <h2 className='text-[14px] font-semibold'>Your avatar</h2>
+                      <p className='text-[#71717A] text-[14px]'>This will be displayed on your profile</p>
+                    </div>
+                    <div className='w-1/2 flex items-center gap-2.5'>
+                      <Avatar>
+                        <img width={36} height={36} src={AvatarImg} alt="avatar" />
+                      </Avatar>
+                      <Button variant={"light"}>
+                        <span>
+                          <img src={Drag} alt="icon" />
+                        </span>
+                        <span>Upload</span>
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+                <div className='border-b pb-6 mt-6 border-[#E4E4E7]'>
+                  <div className='flex items-center gap-2 justify-between w-full'>
+                    <div className='w-1/2'>
+                      <h2 className='text-[14px] font-semibold'>Email</h2>
+                      <p className='text-[#71717A] text-[14px]'>Used to login to the service (can’t be changed)</p>
+                    </div>
+                    <div className='w-1/2'>
+                      <Input className="w-full" placeholder='sample@mail.com' disabled />
+                    </div>
+                  </div>
+                </div>
+                <div className='border-b pb-6 mt-6 border-[#E4E4E7]'>
+                  <div className='flex items-center gap-2 justify-between w-full'>
+                    <div className='w-1/2'>
+                      <h2 className='text-[14px] font-semibold'>USDT (TRC-20) address</h2>
+                      <p className='text-[#71717A] text-[14px]'>Used for payouts from referral program</p>
+                    </div>
+                    <div className='w-1/2'>
+                      <Input className="w-full" placeholder='Enter USDT TRC-20 address…' defaultValue={"user12345"} />
+                    </div>
+                  </div>
+                </div>
+                <div className='flex mt-6 justify-end'>
+                  <Button variant={"default"}>Save</Button>
+                </div>
+              </div>
+            )}
+            {activeTab === 'security' && (
+              <div className='w-full p-6 bg-white border border-[#E4E4E7] rounded-[8px]'>
+                <div className='border-b pb-6 border-[#E4E4E7]'>
+                  <h2 className='text-[20px] font-semibold'>Security</h2>
+                  <p className='text-[#71717A] text-[14px]'>Update your account password</p>
+                </div>
+                <div className='border-b pb-6 mt-6 border-[#E4E4E7]'>
+                  <div className='flex items-center gap-2 justify-between w-full'>
+                    <div className='w-1/2'>
+                      <h2 className='text-[14px] font-semibold'>Change password</h2>
+                      <p className='text-[#71717A] text-[14px] w-[400px]'>Enter your current password followed by a new secure password</p>
+                    </div>
+                    <div className='w-1/2 flex flex-col gap-5'>
+                      <div>
+                        <div className='flex justify-between'>
+                          <h2 className='text-[14px] font-semibold'>Change password</h2>
+                          <button className='underline font-normal text-[14px] text-[#71717A]'>Forgot your password?</button>
+                        </div>
+                        <div>
+                          <Input className='mt-1' placeholder='Enter password…' />
+                        </div>
+                      </div>
+                      <div>
+                        <div className='flex justify-between'>
+                          <h2 className='text-[14px] font-semibold'>New password</h2>
+                        </div>
+                        <div>
+                          <Input 
+                            className={`mt-1 ${error ? 'border-red-500' : ''}`}
+                            placeholder='Enter new password…' 
+                            value={newPassword} 
+                            onChange={handleNewPasswordChange} 
+                          />
+                          {error && <p className='text-[#71717A] mt-1 text-sm'>{error}</p>}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className='flex mt-6 justify-end'>
+                  <Button variant={"default"}>Save</Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export default Profile;

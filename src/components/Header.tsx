@@ -41,8 +41,8 @@ export default function Header() {
         <div className="flex items-center gap-6">
           <div>
             <nav className="text-[14px] font-medium flex items-center gap-6">
-              <a className="header-nav-menu" href="#">Dashboard</a>
-              <a className="header-nav-menu" href="#">Helpdesk</a>
+              <a className="header-nav-menu" href="/">Dashboard</a>
+              <a className="header-nav-menu" href="/help">Helpdesk</a>
             </nav>
           </div>
           <div className="flex items-center gap-6">
@@ -84,22 +84,22 @@ export default function Header() {
                 <DropdownMenuGroup>
                   <DropdownMenuItem>
                     <img src={Subscribe} alt="Subscribe" />
-                    <span>Get subscription</span>
+                    <Link to={"/"}><span>Get subscription</span></Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
                     <img src={Settings} alt="Settings" />
-                    <span>Settings</span>
+                    <Link to={"/profile"}><span>Settings</span></Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <img src={Payments} alt="Payments" />
-                    <span>Payments</span>
+                    <Link to={"/"}><span>Payments</span></Link>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
                   <img src={LogOut} alt="Log out" />
-                  <span>Log out</span>
+                  <Link to={"#"}><span>Log out</span></Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

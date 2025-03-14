@@ -119,6 +119,11 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+::selection {
+  background-color: #000000;
+  color: #ffffff;
+}
+
 .coupon-icon {
   color: white;
   transition: color 0.3s ease;
