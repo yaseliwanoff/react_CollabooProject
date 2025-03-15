@@ -22,12 +22,12 @@ interface BannerProps {
 const Banner: React.FC<BannerProps> = ({ title, text, button1, button2 }) => {
   return (
     <div className="w-full flex py-6 px-6 bg-[#18181B] font-[Inter] text-[#FFFFFF] rounded-[8px]">
-      <div className='flex-1 flex items-center justify-between'>
+      <div className='flex-1 block md:flex items-center justify-between'>
         <div>
           <h1 className="text-[18px] font-semibold">{title}</h1>
           <p className="text-[14px] opacity-80">{text}</p>
         </div>
-        <div className="flex space-x-4">
+        <div className="block md:flex pt-4 md:pt-0 space-x-4">
           <HoverCard>
             <HoverCardTrigger asChild>
             <Button variant="outline2" className="flex items-center button">
@@ -43,7 +43,7 @@ const Banner: React.FC<BannerProps> = ({ title, text, button1, button2 }) => {
                 <div className="space-y-1 items-start flex flex-col">
                   <p className="text-sm">How to activate coupon</p>
                   <div className="flex items-center">
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-muted-foreground w-[227px] md:w-full">
                       Select the subscription you need, go to payment page and enter the coupon you have.
                     </span>
                   </div>
@@ -51,7 +51,7 @@ const Banner: React.FC<BannerProps> = ({ title, text, button1, button2 }) => {
               </div>
             </HoverCardContent>
           </HoverCard>
-          <Button variant="secondary" className="flex items-center">
+          <Button variant="secondary" className="mt-3 md:mt-0 flex items-center">
             {button2.label} 
             {React.isValidElement(button2.image) && React.cloneElement(button2.image)}
           </Button>

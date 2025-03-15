@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/breadcrumb";
 import MobbinAvatar from "@/assets/images/svg/mobbin-avatar.svg";
 import { Button } from "@/components/ui/button";
-<<<<<<< HEAD
 import PaymentsDetails from "@/components/PaymentsDetails";
 import PaymentsOutdated from "@/components/PaymentsOutdated";
 import PaymentsSuccessful from "@/components/PaymentsSuccessful";
@@ -17,28 +16,16 @@ import PaymentsError from "@/components/PaymentsError";
 import File from "@/assets/images/svg/file.svg";
 import Drag from "@/assets/images/svg/drag.svg";
 import { Link } from "react-router-dom";
-=======
-import Copy from "@/assets/images/svg/Copy.svg";
-import Warning from "@/assets/images/svg/CircleAlert.svg";
-// import Oclock from "@/assets/images/png/Oclock.png";
->>>>>>> 953c963 (create pages)
 
 export default function BuyLoading() {
   const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState(900);
   const [progressColor, setProgressColor] = useState("#2A9D90");
-<<<<<<< HEAD
   const [paymentMade, setPaymentMade] = useState(false);
   const [verificationComplete, setVerificationComplete] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [receiptSent, setReceiptSent] = useState(false);
   const [paymentError, setPaymentError] = useState(false);
-=======
-  const [paymentConfirmed, setPaymentConfirmed] = useState(false);
-  const [paymentCheckFailed, setPaymentCheckFailed] = useState(false);
-  const phoneNumber = "+7 916 222 22 22";
-  const amount = "336 RUB";
->>>>>>> 953c963 (create pages)
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -66,19 +53,11 @@ export default function BuyLoading() {
 
   useEffect(() => {
     if (timeLeft > 600) {
-<<<<<<< HEAD
       setProgressColor("#2A9D90");
     } else if (timeLeft > 300) {
       setProgressColor("#FBBF24");
     } else {
       setProgressColor("#DC2626");
-=======
-      setProgressColor("#2A9D90"); // Green
-    } else if (timeLeft > 300) {
-      setProgressColor("#FBBF24"); // Yellow
-    } else {
-      setProgressColor("#DC2626"); // Red
->>>>>>> 953c963 (create pages)
     }
   }, [timeLeft]);
 
@@ -88,7 +67,6 @@ export default function BuyLoading() {
     return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
-<<<<<<< HEAD
   const handlePaymentMade = () => {
     setPaymentMade(true);
     setTimeout(() => {
@@ -116,18 +94,11 @@ export default function BuyLoading() {
 
     setTimeout(() => {
       setPaymentError(true);
-=======
-  const handlePaymentConfirmation = () => {
-    setPaymentConfirmed(true);
-
-    setTimeout(() => {
-      setPaymentCheckFailed(true);
->>>>>>> 953c963 (create pages)
     }, 3000);
   };
 
   return (
-    <section className="container1 font-[Inter] font-normal text-[#18181B] h-screen flex flex-col">
+    <section className="container font-[Inter] font-normal text-[#18181B] h-screen flex flex-col">
       <div className="pt-24">
         <Breadcrumb>
           <BreadcrumbList>
@@ -251,7 +222,6 @@ export default function BuyLoading() {
                   </div>
                 </div>
               </div>
-<<<<<<< HEAD
             )
           ) : (
             <div className="w-[468px]">
@@ -271,35 +241,6 @@ export default function BuyLoading() {
                 </div>
               </div>
               <Button className="mt-6" variant={"full_dark"} onClick={handlePaymentMade}>I made a payment</Button>
-=======
-              <div className="">
-                {!paymentConfirmed ? (
-                  <>
-                    <div className="w-full mt-6 gap-6 justify-center flex flex-col items-center bg-white rounded-[6px] border border-[#E4E4E7] p-6">
-                      <h5 className="font-semibold text-[16px]">Awaiting for your payment</h5>
-                      <p className="font-normal text-[24px]">{formatTime(timeLeft)}</p>
-                      <div className="bg-[progressColor] w-full h-4 rounded-full" style={{ backgroundColor: progressColor }}></div>
-                    </div>
-                    <Button className="mt-6" variant={"full_dark"} onClick={handlePaymentConfirmation}>I made a payment</Button>
-                  </>
-                ) : paymentCheckFailed ? (
-                  <div className="w-full mt-6 gap-6 bg-white rounded-[6px] border border-[#E4E4E7] p-6">
-                    <div className="flex flex-col text-center justify-between items-center">
-                      <h5 className="font-semibold text-[16px] mb-1">Payment Check Failed</h5>
-                      <p className="font-normal text-[14px] w-[230px] text-[#71717A]">Unfortunately, your payment could not be verified. Please try again.</p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="w-full mt-6 gap-6 bg-white rounded-[6px] border border-[#E4E4E7] p-6">
-                    <div className="flex flex-col text-center justify-between items-center">
-                      <div className="loader mb-3"></div>
-                      <h5 className="font-semibold text-[16px] mb-1">Checking your payment</h5>
-                      <p className="font-normal text-[14px] w-[230px] text-[#71717A]">Please don’t leave that page until the payment is confirmed</p>
-                    </div>
-                  </div>
-                )}
-              </div>
->>>>>>> 953c963 (create pages)
             </div>
           )}
         </div>

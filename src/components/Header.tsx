@@ -25,12 +25,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import ArrowDown from "@/assets/images/svg/arrow-down.svg";
 
 export default function Header() {
   return (
     <header className="fixed w-full bg-white py-3.5 border-b border-[#E4E4E7] z-50">
-      <div className="container1 flex items-center justify-between">
-        <div>
+      <div className="container flex items-center justify-between">
+        <div className="hidden lg:flex">
             <a href="" className="flex items-center gap-2">
               <span>
                 <img src={Logo} alt="logo" />
@@ -38,7 +39,70 @@ export default function Header() {
               <span className="font-semibold">Collaboo</span>
             </a>
         </div>
-        <div className="flex items-center gap-6">
+        <div className="flex lg:hidden">
+          <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <a href="" className="flex items-center gap-2">
+                  <span>
+                    <img src={Logo} alt="logo" />
+                  </span>
+                  <span className="font-semibold">Collaboo</span>
+                  <img src={ArrowDown} alt="icon" />
+                </a>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56">
+                <DropdownMenuGroup>
+                  <DropdownMenuItem>
+                    <Link to={"/"}><a href="/">Dashboard</a></Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link to={"/help"}><a href="/">Helpdesk</a></Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Select>
+                      <SelectTrigger className="w-[100%]">
+                        <SelectValue placeholder="Select a language" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Languages</SelectLabel>
+                          <SelectItem value="eng">🇺🇸 ENG</SelectItem>
+                          <SelectItem value="rus">🇷🇺 RUS</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <Button variant={"full_dark"}>
+                      <span><img src={Lighting} alt="icon" /></span>
+                      Get Free Access
+                    </Button>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <span className="text-[12px] font-medium text-[#71717A] py-3">My account</span>
+                  <DropdownMenuItem>
+                    <img src={Subscribe} alt="Subscribe" />
+                    <Link to={"/"}><span>Get subscription</span></Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <img src={Settings} alt="Settings" />
+                    <Link to={"/profile"}><span>Settings</span></Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <img src={Payments} alt="Payments" />
+                    <Link to={"/"}><span>Payments</span></Link>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <img src={LogOut} alt="Log out" />
+                  <Link to={"#"}><span>Log out</span></Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+        </div>
+        <div className="hidden lg:flex items-center gap-6">
           <div>
             <nav className="text-[14px] font-medium flex items-center gap-6">
               <a className="header-nav-menu" href="/">Dashboard</a>
@@ -53,8 +117,8 @@ export default function Header() {
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Languages</SelectLabel>
-                  <SelectItem value="apple">🇺🇸 ENG</SelectItem>
-                  <SelectItem value="banana">🇷🇺 RUS</SelectItem>
+                  <SelectItem value="eng">🇺🇸 ENG</SelectItem>
+                  <SelectItem value="rus">🇷🇺 RUS</SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>

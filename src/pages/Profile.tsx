@@ -24,8 +24,8 @@ const Profile: React.FC = () => {
   };
 
   return (
-    <section className="container1 font-[Inter] font-normal text-[#18181B]">
-      <div className="container1 pt-[55px]">
+    <section className="container font-[Inter] font-normal text-[#18181B]">
+      <div className="container pt-[55px]">
         <div className="w-full pt-10 mb-8">
           <h1 className="font-semibold text-[30px]">Settings</h1>
         </div>

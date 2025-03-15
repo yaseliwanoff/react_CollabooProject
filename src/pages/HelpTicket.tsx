@@ -21,7 +21,7 @@ const HelpTicket: React.FC = () => {
 
   return (
     <section className="bg-[#FBFBFB] text-[#1B1B1B]">
-      <div className="container1 pt-[55px]">
+      <div className="container pt-[55px]">
         <div className="w-full flex items-center pt-10 mb-8 justify-between">
           <h1 className="font-semibold text-[30px]">Helpdesk</h1>
           <div>

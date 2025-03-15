@@ -1,5 +1,6 @@
 @import "tailwindcss";
 /* @config "../../tailwind.config.js"; */
+@config "../../tailwind.config.js";
 
 @plugin "tailwindcss-animate";
 
@@ -166,8 +167,7 @@
   }
 }
 
-/* Конфигурация контейнера на tailwind 4 */
-@layer utilities {
+/* @layer utilities {
   @variant sm {
     .container1 {
       width: 100%;
@@ -195,7 +195,6 @@
     }
   }
 
-  /* Дефолтный контейнер */
   .container1 {
     width: 100%;
     max-width: 1200px;
@@ -232,14 +231,13 @@
     }
   }
 
-  /* Дефолтный контейнер */
   .container2 {
     width: 100%;
     max-width: 864px;
     padding-inline: auto;
     margin-inline: auto;
   }
-}
+} */
 
 /* Стили для радиокнопок */
 input[type="radio"] {

@@ -21,8 +21,8 @@ const HelpTicketCreate: React.FC = () => {
   };
 
   return (
-    <section className="container1 font-[Inter] font-normal text-[#18181B]">
-      <div className="container1 pt-[55px]">
+    <section className="container font-[Inter] font-normal text-[#18181B]">
+      <div className="container pt-[55px]">
         <div className="w-full flex items-center pt-10 mb-8 justify-between">
           <h1 className="font-semibold text-[30px]">Helpdesk</h1>
           <div>
@@ -38,12 +38,14 @@ const HelpTicketCreate: React.FC = () => {
         </div>
         <div className="flex h-screen text-[Inter]">
           <aside className="w-1/5 flex flex-col text-[14px]">
-            <button 
-              className="button-sidebar" 
-              onClick={handleProfileClick}
-            >
-              Tickets
-            </button>
+            <Link to={"/help"}>
+              <button 
+                className="button-sidebar" 
+                onClick={handleProfileClick}
+              >
+                Tickets
+              </button>
+            </Link>
           </aside>
           <div className="w-4/5">
             {activeTab === 'Tickets' && (

@@ -19,7 +19,7 @@ interface ProductProps {
 
 const Product: React.FC<ProductProps> = ({ avatar, title, description, active, priceOptions, onOrderClick }) => {
   return (
-    <div className="bg-white flex font-[Inter] flex-col w-[310px] h-[478px] rounded-[12px] border border-[#E4E4E7] py-6 px-6">
+    <div className="bg-white flex font-[Inter] flex-col sm:w-full md:w-[295px] lg:w-[310px] h-[478px] rounded-[12px] border border-[#E4E4E7] py-6 px-6">
       <div className='flex flex-col flex-grow'>
         <div className='flex justify-between items-start'>
           <img src={avatar} alt="company logo" />

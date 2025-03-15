@@ -157,15 +157,23 @@ const Dashboard: React.FC = () => {
   const isPaymentMethodSelected = selectedPaymentMethod !== null;
 
   return (
-    <section className="bg-[#FBFBFB] text-[#1B1B1B]">
-      <div className="container1 pt-[55px]">
+    <section className="container bg-[#FBFBFB] text-[#1B1B1B]">
+      <div className="pt-[55px]">
         <div className="w-full pt-10 mb-8">
           <h1 className="font-semibold text-[30px]">Dashboard</h1>
         </div>
-        <div className="flex h-screen text-[Inter]">
-          <aside className="w-1/5 flex flex-col text-[14px]">
+        <div className="block lg:flex h-screen text-[Inter]">
+          <aside className="w-1/5 hidden lg:flex flex-col text-[14px]">
             <button className="button-sidebar" onClick={() => setActiveSection("subscriptions")}>Subscriptions</button>
             <button className="button-sidebar" onClick={() => setActiveSection("payments")}>Payments</button>
+          </aside>
+          <aside className="flex lg:hidden">
+            <Tabs defaultValue="all" className="w-full mb-6" onValueChange={setActiveTab}>
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="all" onClick={() => setActiveSection("subscriptions")}>Subscriptions</TabsTrigger>
+                      <TabsTrigger value="active" onClick={() => setActiveSection("payments")}>Payments</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
           </aside>
           <div className="flex-1 bg-[#FBFBFB]">
             {activeSection === "subscriptions" && purchasedSubscriptions.length > 0 && (
@@ -210,9 +218,9 @@ const Dashboard: React.FC = () => {
               </div>
             )}
             {activeSection === "subscriptions" && (
-              <div className="mt-[32px] flex items-center justify-between">
+              <div className="mt-[32px] block md:flex items-center justify-between">
                 <div>
-                  <Tabs defaultValue="all" className="w-[400px]" onValueChange={setActiveTab}>
+                  <Tabs defaultValue="all" className="w-full pb-4 md:pb-0 md:w-[400px]" onValueChange={setActiveTab}>
                     <TabsList className="grid w-full grid-cols-3">
                       <TabsTrigger value="all">All</TabsTrigger>
                       <TabsTrigger value="active">Active</TabsTrigger>
