@@ -201,7 +201,7 @@
     padding-inline: auto;
     margin-inline: auto;
   }
-}
+} */
 
 @layer utilities {
   @variant sm {
@@ -237,7 +237,7 @@
     padding-inline: auto;
     margin-inline: auto;
   }
-} */
+}
 
 /* Стили для радиокнопок */
 input[type="radio"] {

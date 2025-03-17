@@ -330,14 +330,14 @@ const Dashboard: React.FC = () => {
               <SheetHeader>
                 <div className="container2">
                   <div className="flex gap-3">
-                    <div>
+                    <div className="">
                       <img src={selectedProduct ? selectedProduct.avatar : ""} alt="Product Avatar" className="w-16 h-16 rounded-full" />
                     </div>
                     <div>
                       <div>
                         <SheetTitle>{selectedProduct ? selectedProduct.title : "Product Details"}</SheetTitle>
                       </div>
-                      <div>
+                      <div className="w-[230px] md:w-[450px]">
                         <SheetDescription>{selectedProduct ? selectedProduct.description : "No description available."}</SheetDescription>
                       </div>
                     </div>
@@ -373,7 +373,7 @@ const Dashboard: React.FC = () => {
                       <div>
                         <SheetTitle>{selectedProduct ? selectedProduct.title : "Product Details"}</SheetTitle>
                       </div>
-                      <div>
+                      <div className="w-[230px] md:w-[450px]">
                         <SheetDescription>{selectedProduct ? selectedProduct.description : "No description available."}</SheetDescription>
                       </div>
                     </div>
@@ -382,12 +382,12 @@ const Dashboard: React.FC = () => {
                 </div>
               </SheetHeader>
               <div className="container2">
-                <div className="flex justify-between items-end">
+                <div className="md:flex px-5 md:px-0 justify-between items-end">
                   <div>
                     <div className="mt-4">
                       <h3 className="font-semibold">Subscription period</h3>
                       <div className="flex flex-col mt-2">
-                        <Tabs className="w-[476px]">
+                        <Tabs className="w-full md:w-[476px]">
                           <TabsList className="grid w-full grid-cols-3 h-[58px]">
                             <TabsTrigger value="month1">
                               <div className="flex flex-col">
@@ -643,7 +643,7 @@ const Dashboard: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="bg-[#F4F4F5] w-[364px] h-[750px] px-6 py-6 rounded-[6px] border border-[#E4E4E7] flex flex-col">
+                  <div className="bg-[#F4F4F5] mt-7 md:mt-0 w-full md:w-[364px] h-auto md:h-[750px] px-6 py-6 rounded-[6px] border border-[#E4E4E7] flex flex-col">
                     <div>
                       <h3 className="font-semibold">Have a promo code or coupon?</h3>
                       <div className="flex gap-2 mt-2">
@@ -668,7 +668,7 @@ const Dashboard: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-2 mt-auto">
+                    <div className="flex flex-col gap-2 mt-5 md:mt-auto">
                       <Button variant={"default"} onClick={handleMakePayment} disabled={!isPaymentMethodSelected}>
                         Make payment
                       </Button>
