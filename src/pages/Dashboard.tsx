@@ -90,6 +90,16 @@ const Dashboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null);
   const [loadingText, setLoadingText] = useState("Complete payment in another tab");
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  const handleBlockClick = (index: number) => {
+    if (activeIndex === index) {
+      setActiveIndex(null);
+    } else {
+      setActiveIndex(index);
+    }
+  };
+
 
   const handleMakePayment = () => {
     const cisPaymentMethods = [
@@ -257,7 +267,37 @@ const Dashboard: React.FC = () => {
               </div>
             )}
             {activeSection === "payments" && (
-              <Table>
+              <div className="block md:hidden">
+                {data.map((row, index) => (
+                  <div
+                    key={index}
+                    onClick={() => handleBlockClick(index)}
+                    className="flex flex-col p-4 w-full mb-4 rounded-[12px] border border-[] bg-white shadow cursor-pointer"
+                  >
+                    <h5 className="font-semibold text-[16px]">{row.subscription}</h5>
+                    <div className="flex justify-between mt-3 items-center">
+                      <span className="text-[14px] text-[#71717A]">Date</span>
+                      <span className="text-[14px]">{row.date}</span>
+                    </div>
+                    <div className="flex justify-between mt-3 items-center">
+                      <span className="text-[14px] text-[#71717A]">Price</span>
+                      <span className="text-[14px]">{row.price}</span>
+                    </div>
+                    <div className="flex justify-between mt-3 items-center">
+                      <span className="text-[14px] text-[#71717A]">Status</span>
+                      <span className="text-[14px]">{activeIndex === index ? 'Pending' : statusTexts[index]}</span>
+                    </div>
+                    {activeIndex === index && (
+                      <div className="mt-4">
+                        <Button className="float-right">Open</Button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              )}
+              {activeSection === "payments" && (
+              <Table className="hidden md:table">
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[100px]">Data</TableHead>
@@ -272,26 +312,14 @@ const Dashboard: React.FC = () => {
                       <TableCell className="font-medium">{row.date}</TableCell>
                       <TableCell>{row.subscription}</TableCell>
                       <TableCell>{row.price}</TableCell>
-                      <TableCell
-                        className="text-right"
-                        onMouseEnter={() => {
-                          const newStatusTexts = [...statusTexts];
-                          newStatusTexts[index] = `Pending… (Open)`;
-                          setStatusTexts(newStatusTexts);
-                        }}
-                        onMouseLeave={() => {
-                          const newStatusTexts = [...statusTexts];
-                          newStatusTexts[index] = "Expired";
-                          setStatusTexts(newStatusTexts);
-                        }}
-                      >
-                        {statusTexts[index]}
+                      <TableCell className="text-right">
+                        {activeIndex === index ? 'Pending' : statusTexts[index]}
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-            )}
+              )}
           </div>
         </div>
       </div>
