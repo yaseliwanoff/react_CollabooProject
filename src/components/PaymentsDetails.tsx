@@ -13,7 +13,7 @@ export default function PaymentsDetails() {
     };
 
     return (
-        <div className="flex flex-col mt-[16px] rounded-[6px] p-[16px] bg-[#F4F4F5]">
+        <div className="flex sm:w-[312px] md:w-[468px] flex-col mt-[16px] rounded-[6px] p-[16px] bg-[#F4F4F5]">
                 <div className="flex flex-col border-b border-b-[#E4E4E7] pb-[16px]">
                   <span className="text-[#71717A] text-[14px]">Payment method</span>
                   <span className="font-medium text-[16px]">SBP transfer 🇷🇺</span>
@@ -60,13 +60,13 @@ export default function PaymentsDetails() {
                 </div>
                 <div className="pb-[16px]">
                   <div className="border border-[#DC2626] p-[15px] bg-white text-[#DC2626] rounded-[8px]">
-                    <div className="flex items-start justify-between">
-                      <div>
+                    <div className="flex-col md:flex items-start justify-between">
+                      <div className="mb-3 md:mb-0">
                         <img className="w-4 h-4 mt-1" width={16} height={16} src={Warning} alt="warning" style={{ width: '16px', height: '16px' }} />
                       </div>
                       <div>
                         <h5 className="font-medium text-[16px]">Transfer the exact amount in RUB</h5>
-                        <p className="w-[376px] font-normal text-[14px]">Please note that you must make a single transfer of the exact amount of RUB in the next 15 minutes.</p>
+                        <p className="w-auto md:w-[376px] font-normal text-[14px]">Please note that you must make a single transfer of the exact amount of RUB in the next 15 minutes.</p>
                       </div>
                     </div>
                   </div>

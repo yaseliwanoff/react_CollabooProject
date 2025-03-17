@@ -10,7 +10,7 @@ export default function PaymentsError() {
                       </div>
                       <div>
                         <h5 className="font-medium text-[16px]">Error in receiving credentials</h5>
-                        <p className="w-[376px] font-normal text-[14px]">Looks like we have a problem with processing your payment. Try using a different payment method.</p>
+                        <p className="sm:w-auto md:w-[376px] font-normal text-[14px]">Looks like we have a problem with processing your payment. Try using a different payment method.</p>
                       </div>
                     </div>
             </div>

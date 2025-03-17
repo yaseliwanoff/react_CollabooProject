@@ -4,6 +4,11 @@ import Chat from "@/assets/images/svg/Chat.svg";
 import { Link } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import Copy from "@/assets/images/svg/Copy.svg";
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 
 const Help: React.FC = () => {
   const [activeTab, setActiveTab] = useState('Affiliate link');
@@ -33,19 +38,9 @@ const Help: React.FC = () => {
       <div className="container pt-[55px]">
         <div className="w-full flex items-center pt-10 mb-8 justify-between">
           <h1 className="font-semibold text-[30px]">Affiliate program</h1>
-          <div>
-            <Link to={"/help-ticket-create"}>
-              <Button variant={"default"} className="ml-auto">
-                <span>
-                  <img src={Chat} alt="icon" />
-                </span>
-                <span>Submit new ticket</span>
-              </Button>
-            </Link>
-          </div>
         </div>
-        <div className="flex h-screen text-[Inter]">
-          <aside className="w-1/5 flex flex-col text-[14px]">
+        <div className="lg:flex h-screen text-[Inter]">
+          <aside className="w-1/5 hidden lg:flex flex-col text-[14px]">
             <button 
               className="button-sidebar" 
               onClick={() => handleTabClick('Affiliate link')}
@@ -59,7 +54,15 @@ const Help: React.FC = () => {
               Earning statistics
             </button>
           </aside>
-          <div className="w-4/5">
+          <aside className="flex lg:hidden">
+            <Tabs defaultValue="all" className="w-full mb-6" onValueChange={setActiveTab}>
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="all" onClick={() => handleTabClick('Affiliate link')}>Affiliate link</TabsTrigger>
+                      <TabsTrigger value="active" onClick={() => handleTabClick('Earning statistics')}>Earning statistics</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+          </aside>
+          <div className="lg:w-4/5">
             {activeTab === 'Affiliate link' && (
               <div className='bg-white rounded-[8px] border border-[#E4E4E7] p-6'>
                 <div className='flex flex-col gap-1 border-b border-[#E4E4E7] pb-6'>

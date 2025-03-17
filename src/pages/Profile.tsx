@@ -4,6 +4,11 @@ import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import Drag from "@/assets/images/svg/Drag.svg";
 import AvatarImg from "@/assets/images/png/avatar.png";
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 
 const Profile: React.FC = () => {
   const [activeTab, setActiveTab] = useState('profile');
@@ -29,8 +34,8 @@ const Profile: React.FC = () => {
         <div className="w-full pt-10 mb-8">
           <h1 className="font-semibold text-[30px]">Settings</h1>
         </div>
-        <div className="flex h-screen text-[Inter]">
-          <aside className="w-1/5 flex flex-col text-[14px]">
+        <div className="lg:flex h-screen text-[Inter]">
+          <aside className="w-1/5 hidden lg:flex flex-col text-[14px]">
             <button 
               className="button-sidebar" 
               onClick={() => setActiveTab('profile')}
@@ -44,7 +49,15 @@ const Profile: React.FC = () => {
               Security
             </button>
           </aside>
-          <div className="w-4/5">
+          <aside className="flex lg:hidden">
+            <Tabs defaultValue="all" className="w-full mb-6" onValueChange={setActiveTab}>
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="all" onClick={() => setActiveTab("profile")}>Profile</TabsTrigger>
+                      <TabsTrigger value="active" onClick={() => setActiveTab("security")}>Security</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+          </aside>
+          <div className="lg:w-4/5">
             {activeTab === 'profile' && (
               <div className='w-full p-6 bg-white border border-[#E4E4E7] rounded-[8px]'>
                 <div className='border-b pb-6 border-[#E4E4E7]'>
@@ -52,23 +65,23 @@ const Profile: React.FC = () => {
                   <p className='text-[#71717A] text-[14px]'>Set up out your profile</p>
                 </div>
                 <div className='border-b pb-6 mt-6 border-[#E4E4E7]'>
-                  <div className='flex items-center gap-2 justify-between w-full'>
-                    <div className='w-1/2'>
+                  <div className='md:flex items-center gap-2 justify-between w-full'>
+                    <div className='md:w-1/2 mb-3 md:mb-0'>
                       <h2 className='text-[14px] font-semibold'>Username</h2>
                       <p className='text-[#71717A] text-[14px]'>Used when you contact support team</p>
                     </div>
-                    <div className='w-1/2'>
+                    <div className='md:w-1/2'>
                       <Input className="w-full" placeholder='username' defaultValue={"user12345"} />
                     </div>
                   </div>
                 </div>
                 <div className='border-b pb-6 mt-6 border-[#E4E4E7]'>
-                  <div className='flex items-center gap-2 justify-between w-full'>
-                    <div className='w-1/2'>
+                  <div className='md:flex items-center gap-2 justify-between w-full'>
+                    <div className='md:w-1/2 mb-2 md:mb-0'>
                       <h2 className='text-[14px] font-semibold'>Your avatar</h2>
                       <p className='text-[#71717A] text-[14px]'>This will be displayed on your profile</p>
                     </div>
-                    <div className='w-1/2 flex items-center gap-2.5'>
+                    <div className='md:w-1/2 flex items-center gap-2.5'>
                       <Avatar>
                         <img width={36} height={36} src={AvatarImg} alt="avatar" />
                       </Avatar>
@@ -82,23 +95,23 @@ const Profile: React.FC = () => {
                   </div>
                 </div>
                 <div className='border-b pb-6 mt-6 border-[#E4E4E7]'>
-                  <div className='flex items-center gap-2 justify-between w-full'>
-                    <div className='w-1/2'>
+                  <div className='md:flex items-center gap-2 justify-between w-full'>
+                    <div className='md:w-1/2 mb-2 md:mb-0'>
                       <h2 className='text-[14px] font-semibold'>Email</h2>
                       <p className='text-[#71717A] text-[14px]'>Used to login to the service (can’t be changed)</p>
                     </div>
-                    <div className='w-1/2'>
+                    <div className='md:w-1/2'>
                       <Input className="w-full" placeholder='sample@mail.com' disabled />
                     </div>
                   </div>
                 </div>
                 <div className='border-b pb-6 mt-6 border-[#E4E4E7]'>
-                  <div className='flex items-center gap-2 justify-between w-full'>
-                    <div className='w-1/2'>
+                  <div className='md:flex items-center gap-2 justify-between w-full'>
+                    <div className='md:w-1/2 mb-2 md:mb-0'>
                       <h2 className='text-[14px] font-semibold'>USDT (TRC-20) address</h2>
                       <p className='text-[#71717A] text-[14px]'>Used for payouts from referral program</p>
                     </div>
-                    <div className='w-1/2'>
+                    <div className='md:w-1/2'>
                       <Input className="w-full" placeholder='Enter USDT TRC-20 address…' defaultValue={"user12345"} />
                     </div>
                   </div>
@@ -115,19 +128,20 @@ const Profile: React.FC = () => {
                   <p className='text-[#71717A] text-[14px]'>Update your account password</p>
                 </div>
                 <div className='border-b pb-6 mt-6 border-[#E4E4E7]'>
-                  <div className='flex items-center gap-2 justify-between w-full'>
-                    <div className='w-1/2'>
+                  <div className='md:flex items-center gap-2 justify-between w-full'>
+                    <div className='md:w-1/2'>
                       <h2 className='text-[14px] font-semibold'>Change password</h2>
-                      <p className='text-[#71717A] text-[14px] w-[400px]'>Enter your current password followed by a new secure password</p>
+                      <p className='text-[#71717A] text-[14px] w-auto md:w-[400px]'>Enter your current password followed by a new secure password</p>
                     </div>
-                    <div className='w-1/2 flex flex-col gap-5'>
+                    <div className='md:w-1/2 flex flex-col gap-5 mt-4 md:mt-0'>
                       <div>
                         <div className='flex justify-between'>
                           <h2 className='text-[14px] font-semibold'>Change password</h2>
-                          <button className='underline font-normal text-[14px] text-[#71717A]'>Forgot your password?</button>
+                          <button className='underline hidden md:flex font-normal text-[14px] text-[#71717A]'>Forgot your password?</button>
                         </div>
                         <div>
                           <Input className='mt-1' placeholder='Enter password…' />
+                          <button className='underline mt-1 float-right flex md:hidden font-normal text-[14px] text-[#71717A]'>Forgot your password?</button>
                         </div>
                       </div>
                       <div>

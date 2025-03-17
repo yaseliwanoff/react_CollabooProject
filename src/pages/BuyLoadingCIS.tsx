@@ -99,24 +99,26 @@ export default function BuyLoading() {
 
   return (
     <section className="container font-[Inter] font-normal text-[#18181B] h-screen flex flex-col">
-      <div className="pt-24">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/">Dashboard</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/components">Payments</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>#p1502251 Mobbin - 1 month</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-      </div>
-      <div className="flex-grow mt-[80px] flex flex-col justify-center items-center">
+      {loading && (
+        <div className="pt-24">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/">Dashboard</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/components">Payments</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>#p1502251 Mobbin - 1 month</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+        )}
+        <div className="flex-grow mt-[80px] flex flex-col justify-center items-center">
         <div className="max-w-[896px] w-full mx-auto flex flex-col items-center">
           <div className="flex gap-3 items-center">
             <div>
@@ -142,7 +144,7 @@ export default function BuyLoading() {
           ) : paymentMade ? (
             verificationComplete ? (
               paymentError ? (
-                <div className="w-[468px]">
+                <div className="sm:w-[312px] md:w-[468px]">
                   <PaymentsError />
                   <div className="mt-4">
                     <Link to={"/"}>
@@ -151,7 +153,7 @@ export default function BuyLoading() {
                   </div>
                 </div>
               ) : receiptSent ? (
-                <div className="w-[468px]">
+                <div className="sm:w-[312px] md:w-[468px]">
                   <PaymentsSuccessful />
                   <div className="mt-4">
                     <Link to={"/"}>
@@ -160,10 +162,10 @@ export default function BuyLoading() {
                   </div>
                 </div>
               ) : (
-                <div className="w-[468px]">
+                <div className="sm:w-[312px] md:w-[468px]">
                   <PaymentsOutdated />
                   <div className="w-full mt-6 gap-6 justify-center flex flex-col items-center bg-white rounded-[6px] border border-[#E4E4E7] p-4">
-                    <p className="w-[420px] text-center">
+                    <p className="sm:w-auto md:w-[420px] text-center">
                       If you have made the payments and see this page, attach the receipt <span className="font-medium">in PDF format</span> to the payment approval.
                     </p>
                     <div
@@ -174,7 +176,7 @@ export default function BuyLoading() {
                       <div>
                         <button className="flex flex-col items-center gap-1">
                           <span>
-                            <img src={Drag} alt="icon" />
+                            <img className="w-[16px] h-[16px] object-contain" src={Drag} width={16} height={16} alt="icon" />
                           </span>
                           <span className="text-[15px]">Drag-n-drop file</span>
                         </button>
@@ -186,7 +188,7 @@ export default function BuyLoading() {
                       <div>
                         <Button variant={"light"} onClick={() => document.getElementById('fileInput')?.click()}>
                           <span>
-                            <img src={File} alt="icon" />
+                            <img className="w-[16px] h-[16px] object-contain" src={File} width={16} height={16} alt="icon" />
                           </span>
                           <span>Select file</span>
                         </Button>
@@ -212,9 +214,9 @@ export default function BuyLoading() {
                 </div>
               )
             ) : (
-              <div className="w-[468px]">
+              <div className="sm:w-[312px] md:w-[468px] flex flex-col justify-between items-center">
                 <PaymentsDetails />
-                <div className="w-full mt-6 bg-white rounded-[6px] border border-[#E4E4E7] p-6">
+                <div className="w-full mt-6 bg-white rounded-[6px] border border-[#E4E4E7] p-6 flex flex-col items-center">
                   <div className="flex flex-col gap-2 items-center justify-center">
                     <div className="loader"></div>
                     <h5 className="font-semibold text-[16px]">Checking your payment</h5>
@@ -224,7 +226,7 @@ export default function BuyLoading() {
               </div>
             )
           ) : (
-            <div className="w-[468px]">
+            <div className="sm:w-[312px] md:w-[468px] flex flex-col justify-between items-center">
               <PaymentsDetails />
               <div className="w-full mt-6 gap-6 justify-center flex flex-col items-center bg-white rounded-[6px] border border-[#E4E4E7] p-6">
                 <h5 className="font-semibold text-[16px]">Awaiting your payment</h5>

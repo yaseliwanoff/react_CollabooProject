@@ -6,7 +6,7 @@ export default function PaymentSuccessful() {
             <div className="flex flex-col justify-center items-center">
                 <img width={269} height={236} src={Successful} alt="ocklock" />
                 <h5 className="mt-2 font-medium text-[24px]">Payment successful</h5>
-                <p className="text-center w-[344px] mt-1 font-[16px] text-[#71717A]">Your subscription is now activated</p>
+                <p className="text-center sm:w-auto md:w-[344px] mt-1 font-[16px] text-[#71717A]">Your subscription is now activated</p>
             </div>
         </div>
     )
