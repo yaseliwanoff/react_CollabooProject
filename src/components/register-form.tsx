@@ -38,14 +38,19 @@ export function RegisterForm({
     e.preventDefault();
     setIsSubmitted(true);
 
+    // Проверка на ошибки
+    let hasError = false;
     if (!isEmailValid(email)) {
       setEmailError("Invalid email format.");
+      hasError = true;
     }
     if (!isPasswordValid) {
       setPasswordError("Minimum length – 8 symbols");
+      hasError = true;
     }
 
-    if (isEmailValid(email) && isPasswordValid) {
+    // Если ошибок нет, отправляем данные
+    if (!hasError) {
       try {
         const response = await fetch("https://api_link", {
           method: "POST",
@@ -61,10 +66,8 @@ export function RegisterForm({
 
         const data = await response.json();
         console.log("Registration successful:", data);
-        // Здесь можно добавить логику для обработки успешной регистрации, например, перенаправление пользователя
       } catch (error) {
         console.error("Error during registration:", error);
-        // Здесь можно обработать ошибку, например, показать сообщение об ошибке
       }
     }
   };
@@ -118,7 +121,7 @@ export function RegisterForm({
             </span>
           )}
         </div>
-        <Button type="submit" className="w-full" disabled={!isEmailValid(email) || !isPasswordValid}>
+        <Button type="submit" className="w-full">
           Sign up
         </Button>
         <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">

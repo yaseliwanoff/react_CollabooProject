@@ -53,6 +53,12 @@ function SheetContent({
   return (
     <SheetPortal>
       <SheetOverlay />
+
+      <SheetPrimitive.Close className="fixed top-[0px] right-4 z-[100] border border-[#E4E4E7] bg-white p-5 rounded-full ring-offset-background focus:ring-ring data-[state=open]:bg-secondary opacity-100 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none">
+        <XIcon className="size-6" />
+        <span className="sr-only">Close</span>
+      </SheetPrimitive.Close>
+
       <SheetPrimitive.Content
         data-slot="sheet-content"
         className={cn(
@@ -67,17 +73,13 @@ function SheetContent({
             "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom inset-x-0 bottom-0 h-auto border-t",
           className
         )}
-        style={{ overflowY: 'auto', maxHeight: '90vh' }} // Добавлено
+        style={{ overflowY: "auto", maxHeight: "90vh" }}
         {...props}
       >
         {children}
-        <SheetPrimitive.Close className="border border-[#E4E4E7] bg-white p-5 rounded-full ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute top-4 right-4 opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none">
-          <XIcon className="size-6" />
-          <span className="sr-only">Close</span>
-        </SheetPrimitive.Close>
       </SheetPrimitive.Content>
     </SheetPortal>
-  )
+  );
 }
 
 function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {

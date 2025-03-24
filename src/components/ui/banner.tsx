@@ -27,7 +27,7 @@ const Banner: React.FC<BannerProps> = ({ title, text, button1, button2 }) => {
           <h1 className="text-[18px] font-semibold">{title}</h1>
           <p className="text-[14px] opacity-80">{text}</p>
         </div>
-        <div className="block md:flex pt-4 md:pt-0 space-x-4">
+        <div className="flex flex-col md:flex-row items-center pt-4 md:pt-0 space-x-4">
           <HoverCard>
             <HoverCardTrigger asChild>
             <Button variant="outline2" className="flex items-center button">

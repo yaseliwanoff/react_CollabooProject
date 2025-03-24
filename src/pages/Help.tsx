@@ -44,15 +44,15 @@ const Help: React.FC = () => {
             </Link>
           </div>
         </div>
-        <div className="md:flex h-screen text-[Inter]">
-          <aside className="w-1/5 hidden md:flex flex-col text-[14px]">
+        <div className="lg:flex h-screen text-[Inter]">
+          <aside className="w-1/5 hidden lg:flex flex-col text-[14px]">
             <Link to={"/help"}>
               <button className="button-sidebar" onClick={handleProfileClick}>
                 Tickets
               </button>
             </Link>
           </aside>
-          <aside className="flex md:hidden">
+          <aside className="flex lg:hidden">
                       <Tabs defaultValue="all" className="w-full mb-3" onValueChange={setActiveTab}>
                               <TabsList className="grid w-full grid-cols-1">
                                 <Link to={"/help"}>
