@@ -3,82 +3,42 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 import GoogleIcon from "../assets/images/svg/google.svg";
+import { useAuth } from "@/hooks/useAuth";
 
-export function RegisterForm({
-  className,
-  ...props
-}: React.ComponentProps<"form">) {
+export function RegisterForm({ className, ...props }: React.ComponentProps<"form">) {
+  const { registerWithEmail, registerWithGoogle, error } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const isEmailValid = (email: string) => {
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailPattern.test(email);
-  };
-
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setEmail(value);
-    setEmailError("");
-  };
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-    setPasswordError("");
-  };
-
+  const isEmailValid = (email: string) => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
   const isPasswordValid = password.length >= 8;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsSubmitted(true);
+    setEmailError("");
+    setPasswordError("");
 
-    // Проверка на ошибки
-    let hasError = false;
     if (!isEmailValid(email)) {
       setEmailError("Invalid email format.");
-      hasError = true;
+      return;
     }
     if (!isPasswordValid) {
       setPasswordError("Minimum length – 8 symbols");
-      hasError = true;
+      return;
     }
 
-    // Если ошибок нет, отправляем данные
-    if (!hasError) {
-      try {
-        const response = await fetch("https://api_link", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        });
-
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-
-        const data = await response.json();
-        console.log("Registration successful:", data);
-      } catch (error) {
-        console.error("Error during registration:", error);
-      }
-    }
+    await registerWithEmail(email, password);
   };
 
   return (
     <form className={cn("flex flex-col gap-6 font-[Inter]", className)} onSubmit={handleSubmit} {...props}>
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Create new account</h1>
-        <p className="text-muted-foreground text-sm text-balance">
-          Enter your email below to create a new account.
-        </p>
+        <p className="text-muted-foreground text-sm">Enter your email below to create a new account.</p>
       </div>
       <div className="grid gap-6">
         <div className="grid gap-3">
@@ -88,57 +48,35 @@ export function RegisterForm({
             type="email"
             placeholder="Enter email..."
             value={email}
-            onChange={handleEmailChange}
-            className={cn({ 'border-red-500': isSubmitted && emailError })}
+            onChange={(e) => setEmail(e.target.value)}
+            className={cn({ "border-red-500": emailError })}
           />
-          {isSubmitted && emailError && (
-            <span className="text-[14px] font-light opacity-60">
-              {emailError}
-            </span>
-          )}
+          {emailError && <span className="text-[14px] text-red-500">{emailError}</span>}
         </div>
-        <div className="grid gap-3 font-[Inter]">
-          <div className="flex items-center">
-            <Label htmlFor="password">Password</Label>
-            <a
-              href="#"
-              className="ml-auto text-sm underline-offset-4 hover:underline"
-            >
-              Forgot your password?
-            </a>
-          </div>
+        <div className="grid gap-3">
+          <Label htmlFor="password">Password</Label>
           <Input
             id="password"
             type="password"
             placeholder="Enter password..."
             value={password}
-            onChange={handlePasswordChange}
-            className={cn({ 'border-red-500': isSubmitted && passwordError })}
+            onChange={(e) => setPassword(e.target.value)}
+            className={cn({ "border-red-500": passwordError })}
           />
-          {isSubmitted && passwordError && (
-            <span className="text-[14px] font-light opacity-60">
-              {passwordError}
-            </span>
-          )}
+          {passwordError && <span className="text-[14px] text-red-500">{passwordError}</span>}
         </div>
-        <Button type="submit" className="w-full">
-          Sign up
-        </Button>
-        <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
-          <span className="bg-background text-muted-foreground relative z-10 px-2">
-            Or continue with
-          </span>
+        {error && <span className="text-red-500 text-sm">{error}</span>}
+        <Button type="submit" className="w-full">Sign up</Button>
+        <div className="relative text-center text-sm">
+          <span className="bg-background text-muted-foreground px-2">Or continue with</span>
         </div>
-        <Button variant="outline" className="w-full">
+        <Button variant="outline" className="w-full" onClick={registerWithGoogle}>
           <img src={GoogleIcon} alt="google" />
           Sign up with Google
         </Button>
       </div>
       <div className="text-center text-sm">
-        Already have an account?{" "}
-        <Link to="/login" className="underline underline-offset-4">
-          Sign in
-        </Link>
+        Already have an account? <Link to="/login" className="underline">Sign in</Link>
       </div>
     </form>
   );

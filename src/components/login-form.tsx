@@ -5,21 +5,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link } from 'react-router-dom';
 import GoogleIcon from "../assets/images/svg/google.svg";
+import { useAuth } from "@/hooks/useAuth";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
+  const { loginWithEmail, loginWithGoogle, error } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const isEmailValid = (email: string) => {
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailPattern.test(email);
-  };
+  const isEmailValid = (email: string) => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -31,29 +30,26 @@ export function LoginForm({
     setPasswordError("");
   };
 
-  const isPasswordValid = password.length >= 8;
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitted(true);
 
     if (!isEmailValid(email)) {
       setEmailError("Invalid email format.");
+      return;
     }
-    if (!isPasswordValid) {
+    if (password.length < 8) {
       setPasswordError("Minimum length – 8 symbols");
+      return;
     }
 
-    // Если валидация прошла, можно выполнить дальнейшие действия (например, отправить данные на сервер)
-    if (isEmailValid(email) && isPasswordValid) {
-      // Здесь можно добавить логику для отправки данных
-      console.log("Form submitted successfully");
+    try {
+      await loginWithEmail(email, password);
+      console.log("Login successful");
+    } catch (err) {
+      console.error("Login failed:", err);
     }
   };
-
-  if (isEmailValid(email) && isPasswordValid) {
-    console.log("Form submitted successfully");
-  }
 
   return (
     <form className={cn("flex flex-col gap-6 font-[Inter]", className)} onSubmit={handleSubmit} {...props}>
@@ -75,20 +71,13 @@ export function LoginForm({
             className={cn({ 'border-red-500': isSubmitted && emailError })}
           />
           {isSubmitted && emailError && (
-            <span className="text-[14px] font-light opacity-60">
-              {emailError}
-            </span>
+            <span className="text-[14px] font-light opacity-60">{emailError}</span>
           )}
         </div>
         <div className="grid gap-3 font-[Inter]">
           <div className="flex items-center">
             <Label htmlFor="password">Password</Label>
-            <a
-              href="#"
-              className="ml-auto text-sm underline-offset-4 hover:underline"
-            >
-              Forgot your password?
-            </a>
+            <a href="#" className="ml-auto text-sm underline-offset-4 hover:underline">Forgot your password?</a>
           </div>
           <Input
             id="password"
@@ -99,29 +88,22 @@ export function LoginForm({
             className={cn({ 'border-red-500': isSubmitted && passwordError })}
           />
           {isSubmitted && passwordError && (
-            <span className="text-[14px] font-light opacity-60">
-              {passwordError}
-            </span>
+            <span className="text-[14px] font-light opacity-60">{passwordError}</span>
           )}
         </div>
-        <Button type="submit" className="w-full">
-          Login
-        </Button>
+        <Button type="submit" className="w-full">Login</Button>
+        {error && <p className="text-red-500 text-center">{error}</p>}
         <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
-          <span className="bg-background text-muted-foreground relative z-10 px-2">
-            Or continue with
-          </span>
+          <span className="bg-background text-muted-foreground relative z-10 px-2">Or continue with</span>
         </div>
-        <Button variant="outline" className="w-full">
+        <Button variant="outline" className="w-full" onClick={loginWithGoogle}>
           <img src={GoogleIcon} alt="google" />
           Login with Google
         </Button>
       </div>
       <div className="text-center text-sm">
         Don&apos;t have an account?{" "}
-        <Link to="/register" className="underline underline-offset-4">
-          Sign up
-        </Link>
+        <Link to="/register" className="underline underline-offset-4">Sign up</Link>
       </div>
     </form>
   );

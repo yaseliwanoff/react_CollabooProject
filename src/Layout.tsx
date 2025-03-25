@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
+import { TokenProvider } from '@/contexts/TokenContext';
 
 import Main from "./Main";
 import AppRoutes from './routes';
@@ -12,11 +13,13 @@ if (rootElement) {
   const root = createRoot(rootElement);
   root.render(
     <StrictMode>
-      <BrowserRouter>
-        <Main>
-          <AppRoutes />
-        </Main>
-      </BrowserRouter>
+      <TokenProvider>
+        <BrowserRouter>
+          <Main>
+            <AppRoutes />
+          </Main>
+        </BrowserRouter>
+      </TokenProvider>
     </StrictMode>
   );
 } else {
