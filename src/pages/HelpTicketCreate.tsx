@@ -11,18 +11,43 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Textarea } from "@/components/ui/textarea";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Tabs,
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { useSupport } from '@/hooks/useSupport';
+import { useAuth } from '@/hooks/useAuth';
 
 const HelpTicketCreate: React.FC = () => {
   const [activeTab, setActiveTab] = useState('Tickets');
+  const [title, setTitle] = useState('');
+  const [message, setMessage] = useState('');
+  const { createTicket, loading, error } = useSupport();
+  const { token } = useAuth();
+  const navigate = useNavigate();
 
   const handleProfileClick = () => {
     setActiveTab('Tickets');
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (!token) {
+        throw new Error('You need to be authenticated to create a ticket');
+      }
+      
+      if (!title.trim() || !message.trim()) {
+        throw new Error('Title and message are required');
+      }
+
+      const ticket = await createTicket(title, message);
+      navigate(`/help-ticket/${ticket.id}`);
+    } catch (err) {
+      console.error('Ticket creation failed:', err);
+    }
   };
 
   return (
@@ -55,12 +80,12 @@ const HelpTicketCreate: React.FC = () => {
           <div className='md:flex'>
             <aside className="flex md:hidden">
               <Tabs defaultValue="all" className="w-full mb-6" onValueChange={setActiveTab}>
-                      <TabsList className="grid w-full grid-cols-1">
-                        <Link to={"/help"}>
-                          <TabsTrigger className='w-full' value="all" onClick={handleProfileClick}>Tickets</TabsTrigger>
-                        </Link>
-                      </TabsList>
-                    </Tabs>
+                <TabsList className="grid w-full grid-cols-1">
+                  <Link to={"/help"}>
+                    <TabsTrigger className='w-full' value="all" onClick={handleProfileClick}>Tickets</TabsTrigger>
+                  </Link>
+                </TabsList>
+              </Tabs>
             </aside>
             <div className='flex md:hidden mb-5'>
               <Link to={"/help-ticket-create"} className="w-full">
@@ -94,22 +119,34 @@ const HelpTicketCreate: React.FC = () => {
                   </Breadcrumb>
                 </div>
                 <div>
-                  <div className='mt-6 flex flex-col gap-3'>
+                  <form onSubmit={handleSubmit} className='mt-6 flex flex-col gap-3'>
                     <div>
                       <h5 className='font-medium text-[14px] mb-2'>Ticket title</h5>
-                      <Input placeholder='Enter ticket title…' className='w-full' />
+                      <Input 
+                        placeholder='Enter ticket title…' 
+                        className='w-full' 
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        required
+                      />
                     </div>
                     <div>
                       <h5 className='font-medium text-[14px] mb-2'>Message</h5>
-                      <Textarea style={{
-                        resize: "none",
-                        height: "115px"
-                      }} placeholder="Enter your text here…" />
+                      <Textarea 
+                        style={{ resize: "none", height: "115px" }} 
+                        placeholder="Enter your text here…" 
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        required
+                      />
                     </div>
+                    {error && <div className="text-red-500 text-sm">{error}</div>}
                     <div className='flex justify-end mt-4'>
-                      <Button variant={"default"}>Submit</Button>
+                      <Button variant={"default"} type="submit" disabled={loading}>
+                        {loading ? 'Submitting...' : 'Submit'}
+                      </Button>
                     </div>
-                  </div>
+                  </form>
                 </div>
               </>
             )}

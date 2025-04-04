@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import Chat from "@/assets/images/svg/Chat.svg";
 import { Link } from 'react-router-dom';
@@ -9,24 +9,33 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-
-const tickets = [
-  { id: "hd-001", question: "Card payment link", updated: "12 hours", status: "New" },
-  { id: "hd-002", question: "Login Issues: Unable to Access My Account", updated: "19 hours", status: "" },
-  { id: "hd-003", question: "Payment Failed: Transaction Declined", updated: "23 hours", status: "" },
-  { id: "hd-004", question: "App Crashing on Startup: Urgent Fix Needed", updated: "1 day", status: "" },
-  { id: "hd-005", question: "Forgot Password: Can't Reset My Credentials", updated: "311 days", status: "" },
-  { id: "hd-006", question: "Security Concern: Suspicious Activity on My Account and I don’t know what to do!", updated: "312 days", status: "" },
-  { id: "hd-007", question: "Profile Update Problem: Changes Not Saving", updated: "456 days", status: "" },
-];
+import { useSupport } from '@/hooks/useSupport';
+import { useAuth } from '@/hooks/useAuth';
+import { formatDistanceToNow } from 'date-fns';
 
 const Help: React.FC = () => {
   const [activeTab, setActiveTab] = useState('Tickets');
   const [hoveredTicketId, setHoveredTicketId] = useState<string | null>(null);
+  const { tickets, loading, error, fetchTickets } = useSupport();
+  const { token } = useAuth();
 
   const handleProfileClick = () => {
     setActiveTab('Tickets');
   };
+
+  useEffect(() => {
+    if (token) {
+      fetchTickets();
+    }
+  }, [token, fetchTickets]);
+
+  if (loading && !tickets.length) {
+    return <div className="container pt-[55px]">Loading tickets...</div>;
+  }
+
+  if (error) {
+    return <div className="container pt-[55px] text-red-500">Error: {error}</div>;
+  }
 
   return (
     <section className="container font-[Inter] font-normal text-[#18181B]">
@@ -53,13 +62,13 @@ const Help: React.FC = () => {
             </Link>
           </aside>
           <aside className="flex lg:hidden">
-                      <Tabs defaultValue="all" className="w-full mb-3" onValueChange={setActiveTab}>
-                              <TabsList className="grid w-full grid-cols-1">
-                                <Link to={"/help"}>
-                                  <TabsTrigger className='w-full' value="all" onClick={handleProfileClick}>Tickets</TabsTrigger>
-                                </Link>
-                              </TabsList>
-                            </Tabs>
+            <Tabs defaultValue="all" className="w-full mb-3" onValueChange={setActiveTab}>
+              <TabsList className="grid w-full grid-cols-1">
+                <Link to={"/help"}>
+                  <TabsTrigger className='w-full' value="all" onClick={handleProfileClick}>Tickets</TabsTrigger>
+                </Link>
+              </TabsList>
+            </Tabs>
           </aside>
           <div className='flex lg:hidden mb-5'>
             <Link to={"/help-ticket-create"} className="w-full">
@@ -88,33 +97,40 @@ const Help: React.FC = () => {
                       {tickets.map((ticket) => (
                         <TableRow key={ticket.id}>
                           <TableCell className="font-medium">{ticket.id}</TableCell>
-                          <TableCell>{ticket.question}</TableCell>
-                          <TableCell>{ticket.updated}</TableCell>
+                          <TableCell>
+                            <Link to={`/help-ticket/${ticket.id}`} className="hover:underline">
+                              {ticket.title}
+                            </Link>
+                          </TableCell>
+                          <TableCell>
+                            {formatDistanceToNow(new Date(ticket.updated_at), { addSuffix: true })}
+                          </TableCell>
                           <TableCell className="text-right" onMouseEnter={() => setHoveredTicketId(ticket.id)} onMouseLeave={() => setHoveredTicketId(null)}>
-                            {ticket.status === "New" && (
-                              <span className="flex items-center">
+                            {ticket.status === "open" && (
+                              <span className="flex items-center justify-end">
                                 {hoveredTicketId === ticket.id ? (
-                                  <>
-                                    <span className="w-2 h-2 bg-orange-500 rounded-full mr-1"></span>
-                                    <Link to="/some-other-page" className="underline"> Got answer (Open) </Link>
-                                  </>
+                                  <Link to={`/help-ticket/${ticket.id}`} className="underline">
+                                    Open ticket
+                                  </Link>
                                 ) : (
                                   <>
                                     <span className="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
-                                    {ticket.status}
+                                    Open
                                   </>
                                 )}
                               </span>
                             )}
-                            {ticket.status === "" && (
-                              <span className="flex items-center">
+                            {ticket.status === "closed" && (
+                              <span className="flex items-center justify-end">
                                 {hoveredTicketId === ticket.id ? (
-                                  <>
-                                    <span className="w-2 h-2 bg-orange-500 rounded-full mr-1"></span>
-                                    <Link to="/help-ticket" className="underline"> Got answer (Open) </Link>
-                                  </>
+                                  <Link to={`/help-ticket/${ticket.id}`} className="underline">
+                                    View ticket
+                                  </Link>
                                 ) : (
-                                  <span></span>
+                                  <>
+                                    <span className="w-2 h-2 bg-gray-500 rounded-full mr-1"></span>
+                                    Closed
+                                  </>
                                 )}
                               </span>
                             )}
@@ -127,49 +143,51 @@ const Help: React.FC = () => {
 
                 <div className="md:hidden">
                   {tickets.map((ticket) => (
-                    <>
-                      <Link to={"/help-ticket"}>
-                        <div key={ticket.id} className="border p-4 mb-4 rounded-lg cursor-pointer" onClick={() => {/* Navigate to the ticket detail page */}}>
-                          <div className='flex flex-col'>
-                            <span className='opacity-70 text-[14px]'>{ticket.id}</span>
-                            <span className='font-semibold text-[18px]'>{ticket.question}</span>
-                          </div>
-                          <p className='opacity-70 text-[14px]'>Updated: {ticket.updated}</p>
-                          <p className="text-right">
-                            {ticket.status === "New" ? (
-                              <span className="text-green-500">{ticket.status}</span>
-                            ) : (
-                              <span className="text-gray-500">No status</span>
-                            )}
-                          </p>
+                    <Link to={`/help-ticket/${ticket.id}`} key={ticket.id}>
+                      <div className="border p-4 mb-4 rounded-lg cursor-pointer">
+                        <div className='flex flex-col'>
+                          <span className='opacity-70 text-[14px]'>{ticket.id}</span>
+                          <span className='font-semibold text-[18px]'>{ticket.title}</span>
                         </div>
-                      </Link>
-                    </>
+                        <p className='opacity-70 text-[14px]'>
+                          Updated: {formatDistanceToNow(new Date(ticket.updated_at), { addSuffix: true })}
+                        </p>
+                        <p className="text-right">
+                          {ticket.status === "open" ? (
+                            <span className="text-green-500">Open</span>
+                          ) : (
+                            <span className="text-gray-500">Closed</span>
+                          )}
+                        </p>
+                      </div>
+                    </Link>
                   ))}
                 </div>
 
-                <div className='flex md:float-right mt-6'>
-                  <Pagination>
-                    <PaginationContent>
-                      <PaginationItem>
-                        <PaginationPrevious href="#" />
-                      </PaginationItem>
-                      <PaginationItem>
-                        <PaginationLink href="#">1</PaginationLink>
-                      </PaginationItem>
-                        <PaginationLink href="#" isActive> 2 </PaginationLink>
+                {tickets.length > 0 && (
+                  <div className='flex md:float-right mt-6'>
+                    <Pagination>
+                      <PaginationContent>
                         <PaginationItem>
-                        <PaginationLink href="#">3</PaginationLink>
-                      </PaginationItem>
-                      <PaginationItem>
-                        <PaginationEllipsis />
-                      </PaginationItem>
-                      <PaginationItem>
-                        <PaginationNext href="#" />
-                      </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
-                </div>
+                          <PaginationPrevious href="#" />
+                        </PaginationItem>
+                        <PaginationItem>
+                          <PaginationLink href="#">1</PaginationLink>
+                        </PaginationItem>
+                        <PaginationLink href="#" isActive>2</PaginationLink>
+                        <PaginationItem>
+                          <PaginationLink href="#">3</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                          <PaginationEllipsis />
+                        </PaginationItem>
+                        <PaginationItem>
+                          <PaginationNext href="#" />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
+                  </div>
+                )}
               </>
             )}
           </div>

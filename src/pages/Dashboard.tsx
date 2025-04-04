@@ -10,7 +10,7 @@ import PurchasedProduct from "@/components/PurchasedProduct";
 import { Badge } from "@/components/ui/badge";
 import Search from "@/assets/images/svg/search.svg";
 import PayPal from "@/assets/images/svg/paypal.svg";
-// import { XIcon } from "lucide-react";
+import { useProducts } from "@/hooks/useProducts";
 import {
   Tabs,
   TabsList,
@@ -32,47 +32,21 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 
-// Временные тестовые данные
-const productData = [
-  {
-    id: 0,
-    active: true,
-    avatar: MobbinAvatar,
-    title: "Mobbin",
-    description: "Discover real-world design inspiration. Featuring over 300,000 screens and 1,000 iOS, Android & Web apps — New content every week.",
-    priceOptions: [
-      { price: "3", count: "1" },
-      { price: "2", count: "6" },
-      { price: "1", count: "12" },
-    ],
-  },
-  {
-    id: 1,
-    active: false,
-    avatar: UxMovement,
-    title: "UX Movement",
-    description: "A professional publication to teach you how to design interfaces that are user-friendly and intuitive to use.",
-    priceOptions: [
-      { price: "3", count: "1" },
-      { price: "2", count: "6" },
-      { price: "1", count: "12" },
-    ],
-  },
-  {
-    id: 2,
-    active: true,
-    avatar: MobbinAvatar,
-    title: "Mobbin",
-    description: "Discover real-world design inspiration. Featuring over 300,000 screens and 1,000 iOS, Android & Web apps — New content every week.",
-    priceOptions: [
-      { price: "3", count: "1" },
-      { price: "2", count: "6" },
-      { price: "1", count: "12" },
-    ],
-  },
-];
+interface PriceOption {
+  price: string;
+  count: string;
+}
 
-const Dashboard: React.FC = () => {
+interface ProductType {
+  id: number;
+  avatar: string;
+  title: string;
+  description: string;
+  active: boolean;
+  priceOptions: PriceOption[];
+}
+
+const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [purchasedSubscriptions, setPurchasedSubscriptions] = useState<any[]>([]);
@@ -91,7 +65,12 @@ const Dashboard: React.FC = () => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null);
   const [loadingText, setLoadingText] = useState("Complete payment in another tab");
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const { products, loading, error } = useProducts();
 
+  // Используем useState для выбранной опции подписки
+  const [selectedOption, setSelectedOption] = useState<PriceOption | null>(null);
+
+  // Функции обработки
   const handleBlockClick = (index: number) => {
     if (activeIndex === index) {
       setActiveIndex(null);
@@ -99,7 +78,6 @@ const Dashboard: React.FC = () => {
       setActiveIndex(index);
     }
   };
-
 
   const handleMakePayment = () => {
     const cisPaymentMethods = [
@@ -145,26 +123,35 @@ const Dashboard: React.FC = () => {
   };
 
   const handleOrderClick = (product: any) => {
-    setSelectedProduct(product); // Установка выбранного продукта
-    setIsSheetOpen(true); // Открытие Sheet
+    setSelectedProduct(product);
+    setIsSheetOpen(true);
   };
 
   const handleCancel = () => {
-    // Завершаем загрузку
     setIsLoading(false);
-    // Очищаем выбранный метод оплаты
     setSelectedPaymentMethod(null);
-    // Закрываем Sheet
-    // setIsSheetOpen(false);
   };
 
-  const filteredProducts = productData.filter(product => {
-    const matchesActiveTab = activeTab === "all" || (activeTab === "active" && product.active) || (activeTab === "inactive" && !product.active);
-    const matchesSearchTerm = product.title.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredProducts = products.filter((product) => {
+    const matchesActiveTab =
+      activeTab === "all" ||
+      (activeTab === "active" && product.active) ||
+      (activeTab === "inactive" && !product.active);
+
+    const matchesSearchTerm = searchTerm.trim() === "" || product.title.toLowerCase().includes(searchTerm.toLowerCase());
+
     return matchesActiveTab && matchesSearchTerm;
   });
 
+  if (loading) return <p>Loading products...</p>;
+  if (error) return <p>Error: {error}</p>;
+
   const isPaymentMethodSelected = selectedPaymentMethod !== null;
+
+  // Вычисление стоимость подписки и сборы
+  const subscriptionPrice = selectedOption ? parseFloat(selectedOption.price) : 0;
+  const processingFee = (subscriptionPrice * 0.05).toFixed(2); // 5% комиссии
+  const totalAmount = (subscriptionPrice + parseFloat(processingFee)).toFixed(2);
 
   return (
     <section className="container bg-[#FBFBFB] text-[#1B1B1B]">
@@ -260,19 +247,21 @@ const Dashboard: React.FC = () => {
             )}
             {activeSection === "subscriptions" && (
               <div className="flex flex-wrap mt-5 gap-[13px]">
-                {filteredProducts.map((productItem) => {
-                  return (
+                {filteredProducts.length > 0 ? (
+                  filteredProducts.map((product) => (
                     <Product
-                      key={productItem.id}
-                      avatar={productItem.avatar}
-                      title={productItem.title}
-                      description={productItem.description}
-                      active={productItem.active}
-                      priceOptions={productItem.priceOptions}
+                      key={product.id}
+                      avatar="/default-avatar.png"
+                      title={product.title}
+                      description={product.description}
+                      active={product.active}
+                      priceOptions={product.priceOptions}
                       onOrderClick={handleOrderClick}
                     />
-                  );
-                })}
+                  ))
+                ) : (
+                  <div>Нет доступных продуктов</div>
+                )}
               </div>
             )}
             {activeSection === "payments" && (
@@ -395,30 +384,26 @@ const Dashboard: React.FC = () => {
                   <div>
                     <div className="mt-4">
                       <h3 className="font-semibold">Subscription period</h3>
-                      <div className="flex flex-col mt-2">
-                        <Tabs className="w-full md:w-[476px]">
-                          <TabsList className="grid w-full grid-cols-3 h-[58px]">
-                            <TabsTrigger value="month1">
-                              <div className="flex flex-col">
-                                <span className="text-[14px]">1 month</span>
-                                <span className="text-[#71717A] text-[12px] font-normal">3$/month</span>
-                              </div>
-                            </TabsTrigger>
-                            <TabsTrigger value="month2">
-                              <div className="flex flex-col">
-                                <span className="text-[14px]">6 month</span>
-                                <span className="text-[#71717A] text-[12px] font-normal">2$/month</span>
-                              </div>
-                            </TabsTrigger>
-                            <TabsTrigger value="month3">
-                              <div className="flex flex-col">
-                                <span className="text-[14px]">12 month</span>
-                                <span className="text-[#71717A] text-[12px] font-normal">1$/month</span>
-                              </div>
-                            </TabsTrigger>
-                          </TabsList>
-                        </Tabs>
-                      </div>
+                      {selectedProduct && selectedProduct.priceOptions.length > 0 && (
+                        <div className="flex flex-col mt-2">
+                          <Tabs className="w-full md:w-[476px]" value={selectedOption?.count || ""}>
+                            <TabsList className="grid w-full grid-cols-3 h-[58px]">
+                              {selectedProduct.priceOptions.map((option: PriceOption, index: number) => (
+                                <TabsTrigger 
+                                  key={index} 
+                                  value={option.count} 
+                                  onClick={() => setSelectedOption(option)}
+                                >
+                                  <div className="flex flex-col">
+                                    <span className="text-[14px]">{option.count}</span>
+                                    <span className="text-[#71717A] text-[12px] font-normal">{option.price}$/month</span>
+                                  </div>
+                                </TabsTrigger>
+                              ))}
+                            </TabsList>
+                          </Tabs>
+                        </div>
+                      )}
                     </div>
                     <div className='w-[100%] h-[1px] bg-[#E4E4E7] my-[32px]'></div>
                     <div className="mt-4">
@@ -661,21 +646,23 @@ const Dashboard: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="mt-4">
-                      <div className="flex justify-between">
-                        <p>Order</p>
-                        <p>$3</p>
+                    {selectedOption && (
+                      <div className="mt-4">
+                        <div className="flex justify-between">
+                          <p>Order</p>
+                          <p>${subscriptionPrice}</p>
+                        </div>
+                        <div className="flex justify-between">
+                          <p>Processing fee (5%)</p>
+                          <p>${processingFee}</p>
+                        </div>
+                        <div className="w-[100%] h-[1px] my-[20px] bg-[#E4E4E7]"></div>
+                        <div className="flex justify-between">
+                          <p>Total amount</p>
+                          <p className="text-[16px] font-semibold">${totalAmount}</p>
+                        </div>
                       </div>
-                      <div className="flex justify-between">
-                        <p>Processing fee (5%)</p>
-                        <p>0.45$</p>
-                      </div>
-                      <div className='w-[100%] h-[1px] my-[20px] bg-[#E4E4E7]'></div>
-                      <div className="flex justify-between">
-                        <p>Total amount</p>
-                        <p className="text-[16px] font-semibold">$364</p>
-                      </div>
-                    </div>
+                    )}
 
                     <div className="flex flex-col gap-2 mt-5 md:mt-auto">
                       <Button variant={"default"} onClick={handleMakePayment} disabled={!isPaymentMethodSelected}>

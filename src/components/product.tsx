@@ -19,7 +19,7 @@ interface ProductProps {
 
 const Product: React.FC<ProductProps> = ({ avatar, title, description, active, priceOptions, onOrderClick }) => {
   return (
-    <div className="bg-white flex font-[Inter] flex-col sm:w-full md:w-[295px] lg:w-[310px] h-[478px] rounded-[12px] border border-[#E4E4E7] py-6 px-6">
+    <div className="bg-white flex font-[Inter] flex-col sm:w-full md:w-[295px] lg:w-[310px] h-auto rounded-[12px] border border-[#E4E4E7] py-6 px-6">
       <div className='flex flex-col flex-grow'>
         <div className='flex justify-between items-start'>
           <img src={avatar} alt="company logo" />
@@ -32,7 +32,7 @@ const Product: React.FC<ProductProps> = ({ avatar, title, description, active, p
             <h4 className='font-semibold text-[16px]'>{title}</h4>
             {!active && <Badge variant={"warning"}>Inactive</Badge>}
           </div>
-          <p className='font-normal text-[14px] opacity-55'>{description}</p>
+          <p className='font-normal text-[14px] opacity-55 mb-2.5'>{description}</p>
         </div>
         <div className='w-[100%] h-[1px] bg-[#E4E4E7]'></div>
         <div className='flex flex-col mt-4'>
@@ -42,7 +42,7 @@ const Product: React.FC<ProductProps> = ({ avatar, title, description, active, p
             {priceOptions.map((option, index) => (
               <React.Fragment key={index}>
                 <div className='border-t border-[#E4E4E7] pt-2'>{option.price}$</div>
-                <div className='border-t border-[#E4E4E7] pt-2'>{option.count} months</div>
+                <div className='border-t border-[#E4E4E7] pt-2'>{option.count}</div>
               </React.Fragment>
             ))}
           </div>
@@ -50,7 +50,7 @@ const Product: React.FC<ProductProps> = ({ avatar, title, description, active, p
         </div>
       </div>
       <div className='mt-4'>
-        <Button variant={"full_dark"} onClick={() => onOrderClick({ title, description, avatar })}>Order</Button>
+        <Button variant={"full_dark"} onClick={() => onOrderClick({ title, description, avatar, priceOptions })}>Order</Button>
       </div>
     </div>
   );

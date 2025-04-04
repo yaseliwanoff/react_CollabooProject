@@ -1,54 +1,74 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { auth, createUserWithEmailAndPassword, signInWithPopup, googleProvider } from "@/lib/firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { getIdToken } from "firebase/auth"; 
+import { signInWithEmailAndPassword, getIdToken, onAuthStateChanged } from "firebase/auth";
 
 export function useAuth() {
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem("authToken"));
+  const [isAuthReady, setIsAuthReady] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Следим за изменением состояния пользователя
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const newToken = await getIdToken(user, true); // Принудительное обновление токена
+        localStorage.setItem("authToken", newToken);
+        setToken(newToken);
+      } else {
+        localStorage.removeItem("authToken");
+        setToken(null);
+      }
+      setIsAuthReady(true);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   const getUserToken = async () => {
-    const user = auth.currentUser;
-    if (user) {
-      return await getIdToken(user);
+    if (auth.currentUser) {
+      const newToken = await getIdToken(auth.currentUser, true); // Принудительно обновляем access_token
+      localStorage.setItem("authToken", newToken);
+      setToken(newToken);
+      return newToken;
     }
     return null;
   };
 
-  // Регистрация с email и password
   const registerWithEmail = async (email: string, password: string) => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
+      await getUserToken();
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     }
   };
 
-  // Регистрация через Google
   const registerWithGoogle = async () => {
     try {
       await signInWithPopup(auth, googleProvider);
+      await getUserToken();
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     }
   };
 
-  // Авторизация через email, password
   const loginWithEmail = async (email: string, password: string) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      await getUserToken();
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     }
   };
 
-  // Авторизация через Google
   const loginWithGoogle = async () => {
     try {
       await signInWithPopup(auth, googleProvider);
+      await getUserToken();
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     }
   };
 
-  return { registerWithEmail, registerWithGoogle, loginWithEmail, loginWithGoogle, getUserToken, error };
+  return { registerWithEmail, registerWithGoogle, loginWithEmail, loginWithGoogle, getUserToken, token, isAuthReady, error };
 }
