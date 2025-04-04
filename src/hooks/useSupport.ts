@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 
 interface Ticket {
@@ -23,8 +23,55 @@ export function useSupport() {
   const [messages, setMessages] = useState<Record<string, Message[]>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const socketRef = useRef<WebSocket | null>(null);
+  const reconnectAttempts = useRef(0);
+  const maxReconnectAttempts = 5;
 
-  // Подключение к WebSocket
+  // WebSocket event handlers
+  const setupWebSocket = useCallback((ws: WebSocket) => {
+    ws.onopen = () => {
+      console.log('WebSocket connected');
+      reconnectAttempts.current = 0;
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.ticket_id) {
+          setMessages(prev => ({
+            ...prev,
+            [data.ticket_id]: [...(prev[data.ticket_id] || []), {
+              id: data.id,
+              text: data.content || data.text,
+              created_at: data.created_at,
+              is_admin: data.is_admin || false
+            }]
+          }));
+        }
+      } catch (err) {
+        console.error('Error parsing WebSocket message:', err);
+      }
+    };
+
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
+      setError('WebSocket connection error');
+    };
+
+    ws.onclose = (event) => {
+      console.log('WebSocket disconnected:', event.code, event.reason);
+      if (reconnectAttempts.current < maxReconnectAttempts) {
+        const delay = Math.min(1000 * Math.pow(2, reconnectAttempts.current), 30000);
+        reconnectAttempts.current += 1;
+        setTimeout(() => {
+          console.log(`Attempting to reconnect (${reconnectAttempts.current}/${maxReconnectAttempts})`);
+          connectWebSocket();
+        }, delay);
+      }
+    };
+  }, []);
+
+  // Connect to WebSocket
   const connectWebSocket = useCallback(async () => {
     try {
       const currentToken = token || (await getUserToken());
@@ -32,42 +79,25 @@ export function useSupport() {
         throw new Error('Authentication required');
       }
 
-      const wsUrl = `ws://217.114.14.99:8080/api-support/api/v1/ws/?token=${currentToken}`;
+      // Close existing connection if any
+      if (socketRef.current) {
+        socketRef.current.close();
+      }
+      // http://217.114.14.99:8003/api-support/api/v1/ws/ticket/1
+      const wsUrl = `http://217.114.14.99:8003/api-support/api/v1/ws/ticket/?token=${currentToken}`;
       const ws = new WebSocket(wsUrl);
-
-      ws.onopen = () => {
-        console.log('WebSocket connected');
-      };
-
-      ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (data.ticket_id) {
-          // Обновляем сообщения для конкретного тикета
-          setMessages(prev => ({
-            ...prev,
-            [data.ticket_id]: [...(prev[data.ticket_id] || []), data]
-          }));
-        }
-      };
-
-      ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-        setError('WebSocket connection error');
-      };
-
-      ws.onclose = () => {
-        console.log('WebSocket disconnected');
-      };
-
+      socketRef.current = ws;
       setSocket(ws);
+
+      setupWebSocket(ws);
       return ws;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'WebSocket connection failed');
       return null;
     }
-  }, [token, getUserToken]);
+  }, [token, getUserToken, setupWebSocket]);
 
-  // Загрузка тикетов
+  // Fetch tickets
   const fetchTickets = useCallback(async () => {
     try {
       setLoading(true);
@@ -95,7 +125,7 @@ export function useSupport() {
     }
   }, [token, getUserToken]);
 
-  // Загрузка сообщений для тикета
+  // Fetch messages for a ticket
   const fetchMessages = useCallback(async (ticketId: string) => {
     try {
       setLoading(true);
@@ -104,11 +134,14 @@ export function useSupport() {
         throw new Error('Authentication required');
       }
 
-      const response = await fetch(`http://217.114.14.99:8080/api-support/api/v1/message/by-ticket?ticket_id=${ticketId}`, {
-        headers: {
-          'Authorization': `Bearer ${currentToken}`
+      const response = await fetch(
+        `http://217.114.14.99:8080/api-support/api/v1/message/by-ticket?ticket_id=${ticketId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${currentToken}`
+          }
         }
-      });
+      );
 
       if (!response.ok) {
         throw new Error('Failed to fetch messages');
@@ -117,7 +150,12 @@ export function useSupport() {
       const data = await response.json();
       setMessages(prev => ({
         ...prev,
-        [ticketId]: data
+        [ticketId]: data.map((msg: any) => ({
+          id: msg.id,
+          text: msg.content,
+          created_at: msg.created_at,
+          is_admin: msg.is_admin || false
+        }))
       }));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load messages');
@@ -126,7 +164,7 @@ export function useSupport() {
     }
   }, [token, getUserToken]);
 
-  // Создание нового тикета
+  // Create new ticket
   const createTicket = useCallback(async (title: string, message: string) => {
     try {
       setLoading(true);
@@ -159,7 +197,7 @@ export function useSupport() {
     }
   }, [token, getUserToken]);
 
-  // Отправка сообщения
+  // Send message
   const sendMessage = useCallback(async (ticketId: string, text: string) => {
     try {
       const currentToken = token || (await getUserToken());
@@ -167,14 +205,17 @@ export function useSupport() {
         throw new Error('Authentication required');
       }
 
-      const response = await fetch(`http://217.114.14.99:8080/api-support/api/v1/message/?ticket_id=${ticketId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${currentToken}`
-        },
-        body: JSON.stringify({ text })
-      });
+      const response = await fetch(
+        `http://217.114.14.99:8080/api-support/api/v1/message/?ticket_id=${ticketId}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentToken}`
+          },
+          body: JSON.stringify({ text })
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Failed to send message');
@@ -188,20 +229,15 @@ export function useSupport() {
   }, [token, getUserToken]);
 
   useEffect(() => {
-    let ws: WebSocket | null = null;
-    
-    const init = async () => {
-      if (token) {
-        ws = await connectWebSocket();
-        await fetchTickets();
-      }
-    };
-
-    init();
+    if (token) {
+      connectWebSocket();
+      fetchTickets();
+    }
 
     return () => {
-      if (ws) {
-        ws.close();
+      if (socketRef.current) {
+        socketRef.current.close();
+        socketRef.current = null;
       }
     };
   }, [token, connectWebSocket, fetchTickets]);
