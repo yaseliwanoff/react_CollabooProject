@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { apiRoutes } from "@/config/apiConfig";
 import { Button } from "@/components/ui/button";
 import { Input } from '@/components/ui/input';
 import Chat from "@/assets/images/svg/Chat.svg";
@@ -47,7 +48,7 @@ const HelpTicketCreate: React.FC = () => {
         throw new Error('User is not authenticated');
       }
 
-      const response = await fetch('http://217.114.14.99:8080/api-support/api/v1/ticket/', {
+      const response = await fetch(apiRoutes.helpTicketCreate, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

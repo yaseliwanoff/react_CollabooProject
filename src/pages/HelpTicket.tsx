@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { apiRoutes, socketRoutes } from "@/config/apiConfig";
 import { useParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import Chat from "@/assets/images/svg/Chat.svg";
@@ -7,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from "@/hooks/useAuth";
 
 // WebSocket URL с измененным форматом для безопасности
-const SOCKET_URL = "ws://217.114.14.99:8080/api-support/api/v1/ws/ticket/";
+const SOCKET_URL = socketRoutes.ticketWS;
 
 const HelpTicket: React.FC = () => {
   const [activeTab, setActiveTab] = useState('Tickets');
@@ -38,7 +39,7 @@ const HelpTicket: React.FC = () => {
 
     const fetchTicket = async () => {
       try {
-        const apiUrl = `http://217.114.14.99:8080/api-support/api/v1/ticket/?ticket_id=${ticketId}`;
+        const apiUrl = `${apiRoutes.helpTicket}/?ticket_id=${ticketId}`;
 
         const response = await fetch(apiUrl, {
           method: "GET",

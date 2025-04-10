@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiRoutes } from "@/config/apiConfig";
 import { Button } from "@/components/ui/button";
 import Chat from "@/assets/images/svg/Chat.svg";
 import { Link } from 'react-router-dom';
@@ -30,7 +31,7 @@ const Help: React.FC = () => {
           return;
         }
 
-        const apiUrl = "http://217.114.14.99:8080/api-support/api/v1/ticket/paginated?limit=10&offset=0";
+        const apiUrl = apiRoutes.help;
         const response = await fetch(apiUrl, {
           method: 'GET',
           headers: {

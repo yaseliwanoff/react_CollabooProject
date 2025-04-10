@@ -14,5 +14,4 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
-// Экспортируем необходимые функции и объекты
 export { auth, createUserWithEmailAndPassword, signInWithPopup, googleProvider, signOut };

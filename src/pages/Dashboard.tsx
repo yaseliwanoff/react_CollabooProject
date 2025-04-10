@@ -1,15 +1,12 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import Banner from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
-import MobbinAvatar from "@/assets/images/svg/mobbin-avatar.svg";
-import UxMovement from "@/assets/images/svg/ux-movement.svg";
+import PaymentMethods from "@/components/PaymentMethods";
 import { InputSearch } from "@/components/ui/search-input";
 import { Input } from "@/components/ui/input";
 import Product from "@/components/product";
 import PurchasedProduct from "@/components/PurchasedProduct";
-import { Badge } from "@/components/ui/badge";
 import Search from "@/assets/images/svg/search.svg";
-import PayPal from "@/assets/images/svg/paypal.svg";
 import { useProducts } from "@/hooks/useProducts";
 import {
   Tabs,
@@ -58,17 +55,22 @@ const Dashboard = () => {
     { date: "01.10.2024", subscription: "#p1502251 Mobbin - 1 месяц", price: "3$" },
     { date: "14.07.2024", subscription: "#p1502251 Mobbin - 1 месяц", price: "Free" },
   ];
+
   const [activeSection, setActiveSection] = useState("subscriptions");
-  const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedPaymentCategory, setSelectedPaymentCategory] = useState<string | null>(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null);
   const [loadingText, setLoadingText] = useState("Complete payment in another tab");
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const { products, loading, error } = useProducts();
 
   // Используем useState для выбранной опции подписки
+  const [selectedProduct, setSelectedProduct] = useState<any>(null); 
   const [selectedOption, setSelectedOption] = useState<PriceOption | null>(null);
+
+  const isPaymentMethodSelected = selectedPaymentMethod !== null;
+  const isSubscriptionSelected = selectedOption !== null;
 
   // Функции обработки
   const handleBlockClick = (index: number) => {
@@ -80,30 +82,16 @@ const Dashboard = () => {
   };
 
   const handleMakePayment = () => {
-    const cisPaymentMethods = [
-      "sbp_transfer",
-      "card_payment_ua",
-      "card_payment_kzz",
-      "card_payment_uz"
-    ];
-
-    const worldPaymentMethods = [
-      "sbp_payment",
-      "PayPal",
-      "Crypto",
-      "WebMoney"
-    ];
-
-    if (selectedPaymentMethod && cisPaymentMethods.includes(selectedPaymentMethod)) {
-      setIsLoading(true);
-      window.open('/buy-loading-cis', '_blank');
-    }
-
-    if (selectedPaymentMethod && worldPaymentMethods.includes(selectedPaymentMethod)) {
-      setIsLoading(true);
+    if (!selectedPaymentMethod || !selectedPaymentCategory) return;
+  
+    setIsLoading(true);
+  
+    if (selectedPaymentCategory === "cis") {
+      window.open("/buy-loading-cis", "_blank");
+    } else if (selectedPaymentCategory === "worldwide") {
       setLoadingText("Receiving credentials");
-      window.open('/buy-loading-word', '_blank');
-
+      window.open("/buy-loading-word", "_blank");
+  
       setTimeout(() => {
         setPurchasedSubscriptions(prev => [
           ...prev,
@@ -118,9 +106,9 @@ const Dashboard = () => {
     }
   };
 
-  const handlePaymentMethodChange = (method: string) => {
-    setSelectedPaymentMethod(method);
-  };
+  // const handlePaymentMethodChange = (method: string) => {
+  //   setSelectedPaymentMethod(method);
+  // };
 
   const handleOrderClick = (product: any) => {
     setSelectedProduct(product);
@@ -143,12 +131,16 @@ const Dashboard = () => {
     return matchesActiveTab && matchesSearchTerm;
   });
 
+  // Error handling in case of failed API call
   if (loading) return <p>Loading products...</p>;
-  if (error) return <p>Error: {error}</p>;
+  // if (error) return <p>Error: {error.message}</p>;
 
-  const isPaymentMethodSelected = selectedPaymentMethod !== null;
+  const handlePaymentMethodChange = (method: any) => {
+    setSelectedPaymentMethod(method.gateway);
+    setSelectedPaymentCategory(method.category);
+  };
+  
 
-  // Вычисление стоимость подписки и сборы
   const subscriptionPrice = selectedOption ? parseFloat(selectedOption.price) : 0;
   const processingFee = (subscriptionPrice * 0.05).toFixed(2); // 5% комиссии
   const totalAmount = (subscriptionPrice + parseFloat(processingFee)).toFixed(2);
@@ -260,7 +252,7 @@ const Dashboard = () => {
                     />
                   ))
                 ) : (
-                  <div>Нет доступных продуктов</div>
+                  <div>No products available</div>
                 )}
               </div>
             )}
@@ -325,10 +317,11 @@ const Dashboard = () => {
         <SheetContent side="bottom">
           {isLoading ? (
             <>
+              {/* Состояние загрузки */}
               <SheetHeader>
                 <div className="container2">
                   <div className="flex gap-3">
-                    <div className="">
+                    <div>
                       <img src={selectedProduct ? selectedProduct.avatar : ""} alt="Product Avatar" className="w-16 h-16 rounded-full" />
                     </div>
                     <div>
@@ -361,6 +354,7 @@ const Dashboard = () => {
             </>
           ) : (
             <>
+              {/* Контент при завершении загрузки */}
               <SheetHeader>
                 <div className="container2">
                   <div className="flex gap-3">
@@ -406,236 +400,7 @@ const Dashboard = () => {
                       )}
                     </div>
                     <div className='w-[100%] h-[1px] bg-[#E4E4E7] my-[32px]'></div>
-                    <div className="mt-4">
-                      <h3 className="font-semibold">Payment method (world)</h3>
-                      <div className="mt-2 flex flex-col gap-3">
-                        <div className="items-top space-x-2 border border-[#E4E4E7] hover:border-[#000000] ease-in-out duration-300 rounded-[8px] py-[8px] px-[8px] shadow shadow-black/5">
-                          <div className="flex justify-between items-center">
-                            <div className="flex gap-2">
-                              <input
-                                type="radio"
-                                id="paypal"
-                                name="paymentMethod"
-                                checked={selectedPaymentMethod === "PayPal"}
-                                onChange={() => handlePaymentMethodChange("PayPal")}
-                              />
-                              <div className="grid gap-1.5 leading-none">
-                                <label
-                                  htmlFor="paypal"
-                                  className="text-sm font-medium leading-none"
-                                >
-                                  {PayPal ? (
-                                    <img src={PayPal} alt="PayPal" />
-                                  ) : (
-                                    "PayPal"
-                                  )}
-                                </label>
-                                <p className="text-sm text-muted-foreground">
-                                  Any bank card
-                                </p>
-                              </div>
-                            </div>
-                            <div>
-                              <Badge variant={"bold"}>12% fee</Badge>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="items-top space-x-2 border border-[#E4E4E7] hover:border-[#000000] ease-in-out duration-300 rounded-[8px] py-[8px] px-[8px] shadow shadow-black/5">
-                          <div className="flex justify-between items-center">
-                            <div className="flex gap-2">
-                              <input
-                                type="radio"
-                                id="crypto"
-                                name="paymentMethod"
-                                checked={selectedPaymentMethod === "Crypto"}
-                                onChange={() => handlePaymentMethodChange("Crypto")}
-                              />
-                              <div className="grid gap-1.5 leading-none">
-                                <label
-                                  htmlFor="crypto"
-                                  className="text-sm font-medium leading-none"
-                                >
-                                  Crypto payment
-                                </label>
-                                <p className="text-sm text-muted-foreground">
-                                  USDT / TON / ETH / SOL
-                                </p>
-                              </div>
-                            </div>
-                            <div>
-                              <Badge variant={"bold"}>0% fee</Badge>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="items-top space-x-2 border border-[#E4E4E7] hover:border-[#000000] ease-in-out duration-300 rounded-[8px] py-[8px] px-[8px] shadow shadow-black/5">
-                          <div className="flex justify-between items-center">
-                            <div className="flex gap-2">
-                              <input
-                                type="radio"
-                                id="webmoney"
-                                name="paymentMethod"
-                                checked={selectedPaymentMethod === "WebMoney"}
-                                onChange={() => handlePaymentMethodChange("WebMoney")}
-                              />
-                              <div className="grid gap-1.5 leading-none">
-                                <label
-                                  htmlFor="webmoney"
-                                  className="text-sm font-medium leading-none"
-                                >
-                                  WebMoney
-                                </label>
-                                <p className="text-sm text-muted-foreground">
-                                  WMZ, WMT etc.
-                                </p>
-                              </div>
-                            </div>
-                            <div>
-                              <Badge variant={"bold"}>25% fee</Badge>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="mt-4">
-                      <h3 className="font-semibold">Payment method (CIS countries)</h3>
-                      <div className="mt-2 flex flex-col gap-3">
-                        <div className="items-top space-x-2 border border-[#E4E4E7] hover:border-[#000000] ease-in-out duration-300 rounded-[8px] py-[8px] px-[8px] shadow shadow-black/5">
-                          <div className="flex justify-between items-center">
-                            <div className="flex gap-2">
-                              <input
-                                type="radio"
-                                id="sbp_payment"
-                                name="paymentMethodcis"
-                                checked={selectedPaymentMethod === "sbp_payment"}
-                                onChange={() => handlePaymentMethodChange("sbp_payment")}
-                              />
-                              <div className="grid gap-1.5 leading-none">
-                                <label
-                                  htmlFor="sbp_payment"
-                                  className="text-sm font-medium leading-none"
-                                >
-                                  SBP payment 🇷🇺
-                                </label>
-                                <p className="text-sm text-muted-foreground">
-                                  Payment by SBP
-                                </p>
-                              </div>
-                            </div>
-                            <div>
-                              <Badge variant={"bold"}>5% fee</Badge>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="items-top space-x-2 border border-[#E4E4E7] hover:border-[#000000] ease-in-out duration-300 rounded-[8px] py-[8px] px-[8px] shadow shadow-black/5">
-                          <div className="flex justify-between items-center">
-                            <div className="flex gap-2">
-                              <input
-                                type="radio"
-                                id="sbp_transfer"
-                                name="paymentMethodcis"
-                                checked={selectedPaymentMethod === "sbp_transfer"}
-                                onChange={() => handlePaymentMethodChange("sbp_transfer")}
-                              />
-                              <div className="grid gap-1.5 leading-none">
-                                <label
-                                  htmlFor="sbp_transfer"
-                                  className="text-sm font-medium leading-none"
-                                >
-                                  SBP transfer 🇷🇺
-                                </label>
-                                <p className="text-sm text-muted-foreground">
-                                  Transfer by phone number
-                                </p>
-                              </div>
-                            </div>
-                            <div>
-                              <Badge variant={"bold"}>10% fee</Badge>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="items-top space-x-2 border border-[#E4E4E7] hover:border-[#000000] ease-in-out duration-300 rounded-[8px] py-[8px] px-[8px] shadow shadow-black/5">
-                          <div className="flex justify-between items-center">
-                            <div className="flex gap-2">
-                              <input
-                                type="radio"
-                                id="card_payment_ua"
-                                name="paymentMethodcis"
-                                checked={selectedPaymentMethod === "card_payment_ua"}
-                                onChange={() => handlePaymentMethodChange("card_payment_ua")}
-                              />
-                              <div className="grid gap-1.5 leading-none">
-                                <label
-                                  htmlFor="card_payment_ua"
-                                  className="text-sm font-medium leading-none"
-                                >
-                                  Card payment 🇺🇦
-                                </label>
-                                <p className="text-sm text-muted-foreground">
-                                  Transfer by card number
-                                </p>
-                              </div>
-                            </div>
-                            <div>
-                              <Badge variant={"bold"}>10% fee</Badge>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="items-top space-x-2 border border-[#E4E4E7] hover:border-[#000000] ease-in-out duration-300 rounded-[8px] py-[8px] px-[8px] shadow shadow-black/5">
-                          <div className="flex justify-between items-center">
-                            <div className="flex gap-2">
-                              <input
-                                type="radio"
-                                id="card_payment_kzz"
-                                name="paymentMethodcis"
-                                checked={selectedPaymentMethod === "card_payment_kzz"}
-                                onChange={() => handlePaymentMethodChange("card_payment_kzz")}
-                              />
-                              <div className="grid gap-1.5 leading-none">
-                                <label
-                                  htmlFor="card_payment_kzz"
-                                  className="text-sm font-medium leading-none"
-                                >
-                                  Card payment 🇰🇿
-                                </label>
-                                <p className="text-sm text-muted-foreground">
-                                  Transfer by card number
-                                </p>
-                              </div>
-                            </div>
-                            <div>
-                              <Badge variant={"bold"}>10% fee</Badge>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="items-top space-x-2 border border-[#E4E4E7] hover:border-[#000000] ease-in-out duration-300 rounded-[8px] py-[8px] px-[8px] shadow shadow-black/5">
-                          <div className="flex justify-between items-center">
-                            <div className="flex gap-2">
-                              <input
-                                type="radio"
-                                id="card_payment_uz"
-                                name="paymentMethodcis"
-                                checked={selectedPaymentMethod === "card_payment_uz"}
-                                onChange={() => handlePaymentMethodChange("card_payment_uz")}
-                              />
-                              <div className="grid gap-1.5 leading-none">
-                                <label
-                                  htmlFor="card_payment_uz"
-                                  className="text-sm font-medium leading-none"
-                                >
-                                  Card transfer 🇺🇿
-                                </label>
-                                <p className="text-sm text-muted-foreground">
-                                  Transfer by card number
-                                </p>
-                              </div>
-                            </div>
-                            <div>
-                              <Badge variant={"bold"}>10% fee</Badge>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    <PaymentMethods onPaymentMethodChange={handlePaymentMethodChange} />
                   </div>
                   <div className="bg-[#F4F4F5] mt-7 md:mt-0 w-full md:w-[364px] h-auto md:h-[750px] px-6 py-6 rounded-[6px] border border-[#E4E4E7] flex flex-col">
                     <div>
@@ -656,10 +421,9 @@ const Dashboard = () => {
                           <p>Processing fee (5%)</p>
                           <p>${processingFee}</p>
                         </div>
-                        <div className="w-[100%] h-[1px] my-[20px] bg-[#E4E4E7]"></div>
-                        <div className="flex justify-between">
-                          <p>Total amount</p>
-                          <p className="text-[16px] font-semibold">${totalAmount}</p>
+                        <div className="flex justify-between font-semibold text-[18px] mt-4">
+                          <p>Total</p>
+                          <p>${totalAmount}</p>
                         </div>
                       </div>
                     )}
@@ -679,6 +443,7 @@ const Dashboard = () => {
           )}
         </SheetContent>
       </Sheet>
+
     </section>
   );
 }
