@@ -11,22 +11,20 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Textarea } from "@/components/ui/textarea";
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useAuth } from "@/hooks/useAuth"; // Импортируем useAuth
 import {
   Tabs,
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { useSupport } from '@/hooks/useSupport';
-import { useAuth } from '@/hooks/useAuth';
 
 const HelpTicketCreate: React.FC = () => {
+  const { getUserToken } = useAuth(); // Получаем функцию для обновления токена
   const [activeTab, setActiveTab] = useState('Tickets');
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
-  const { createTicket, loading, error } = useSupport();
-  const { token } = useAuth();
-  const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleProfileClick = () => {
     setActiveTab('Tickets');
@@ -34,19 +32,44 @@ const HelpTicketCreate: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    
+    // Подготовка данных для отправки
+    const ticketData = {
+      title,
+      header_message: message,
+    };
+
     try {
+      // Получаем актуальный токен перед отправкой
+      const token = await getUserToken();
       if (!token) {
-        throw new Error('You need to be authenticated to create a ticket');
-      }
-      
-      if (!title.trim() || !message.trim()) {
-        throw new Error('Title and message are required');
+        throw new Error('User is not authenticated');
       }
 
-      const ticket = await createTicket(title, message);
-      navigate(`/help-ticket/${ticket.id}`);
-    } catch (err) {
-      console.error('Ticket creation failed:', err);
+      const response = await fetch('http://217.114.14.99:8080/api-support/api/v1/ticket/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Используем актуальный токен
+        },
+        body: JSON.stringify(ticketData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Ticket created successfully:', data);
+        // Очистить форму после успешной отправки
+        setTitle('');
+        setMessage('');
+      } else {
+        const errorData = await response.json();
+        console.error('Error creating ticket:', errorData);
+      }
+    } catch (error) {
+      console.error('Error sending request:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -80,12 +103,12 @@ const HelpTicketCreate: React.FC = () => {
           <div className='md:flex'>
             <aside className="flex md:hidden">
               <Tabs defaultValue="all" className="w-full mb-6" onValueChange={setActiveTab}>
-                <TabsList className="grid w-full grid-cols-1">
-                  <Link to={"/help"}>
-                    <TabsTrigger className='w-full' value="all" onClick={handleProfileClick}>Tickets</TabsTrigger>
-                  </Link>
-                </TabsList>
-              </Tabs>
+                      <TabsList className="grid w-full grid-cols-1">
+                        <Link to={"/help"}>
+                          <TabsTrigger className='w-full' value="all" onClick={handleProfileClick}>Tickets</TabsTrigger>
+                        </Link>
+                      </TabsList>
+                    </Tabs>
             </aside>
             <div className='flex md:hidden mb-5'>
               <Link to={"/help-ticket-create"} className="w-full">
@@ -118,36 +141,36 @@ const HelpTicketCreate: React.FC = () => {
                     </BreadcrumbList>
                   </Breadcrumb>
                 </div>
-                <div>
-                  <form onSubmit={handleSubmit} className='mt-6 flex flex-col gap-3'>
+                <form onSubmit={handleSubmit}>
+                  <div className='mt-6 flex flex-col gap-3'>
                     <div>
                       <h5 className='font-medium text-[14px] mb-2'>Ticket title</h5>
-                      <Input 
-                        placeholder='Enter ticket title…' 
-                        className='w-full' 
+                      <Input
+                        placeholder='Enter ticket title…'
+                        className='w-full'
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        required
                       />
                     </div>
                     <div>
                       <h5 className='font-medium text-[14px] mb-2'>Message</h5>
-                      <Textarea 
-                        style={{ resize: "none", height: "115px" }} 
-                        placeholder="Enter your text here…" 
+                      <Textarea
+                        style={{
+                          resize: "none",
+                          height: "115px",
+                        }}
+                        placeholder="Enter your text here…"
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
-                        required
                       />
                     </div>
-                    {error && <div className="text-red-500 text-sm">{error}</div>}
                     <div className='flex justify-end mt-4'>
-                      <Button variant={"default"} type="submit" disabled={loading}>
-                        {loading ? 'Submitting...' : 'Submit'}
+                      <Button variant={"default"} type="submit" disabled={isSubmitting}>
+                        {isSubmitting ? 'Submitting...' : 'Submit'}
                       </Button>
                     </div>
-                  </form>
-                </div>
+                  </div>
+                </form>
               </>
             )}
           </div>

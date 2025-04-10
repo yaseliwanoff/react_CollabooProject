@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { auth, createUserWithEmailAndPassword, signInWithPopup, googleProvider } from "@/lib/firebase";
+import { auth, createUserWithEmailAndPassword, signInWithPopup, googleProvider, signOut } from "@/lib/firebase"; // Импортируем signOut
 import { signInWithEmailAndPassword, getIdToken, onAuthStateChanged } from "firebase/auth";
 
 export function useAuth() {
@@ -7,13 +7,17 @@ export function useAuth() {
   const [isAuthReady, setIsAuthReady] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Следим за изменением состояния пользователя
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const newToken = await getIdToken(user, true); // Принудительное обновление токена
-        localStorage.setItem("authToken", newToken);
-        setToken(newToken);
+        try {
+          const newToken = await getIdToken(user, true); // Force a fresh token
+          localStorage.setItem("authToken", newToken);
+          setToken(newToken);
+        } catch (err) {
+          console.error("Error fetching token:", err);
+          setError("Authentication error: ");
+        }
       } else {
         localStorage.removeItem("authToken");
         setToken(null);
@@ -26,12 +30,28 @@ export function useAuth() {
 
   const getUserToken = async () => {
     if (auth.currentUser) {
-      const newToken = await getIdToken(auth.currentUser, true); // Принудительно обновляем access_token
-      localStorage.setItem("authToken", newToken);
-      setToken(newToken);
-      return newToken;
+      try {
+        const newToken = await getIdToken(auth.currentUser, true); // Refresh token
+        localStorage.setItem("authToken", newToken);
+        setToken(newToken);
+        return newToken;
+      } catch (err) {
+        console.error("Error fetching user token:", err);
+        setError("Failed to retrieve token: ");
+      }
     }
     return null;
+  };
+
+  const logout = async () => {
+    try {
+      await signOut(auth); // Выполняем выход из аккаунта
+      localStorage.removeItem("authToken"); // Удаляем токен из локального хранилища
+      setToken(null); // Обновляем состояние токена
+    } catch (err) {
+      console.error("Error signing out:", err);
+      setError("Failed to sign out: ");
+    }
   };
 
   const registerWithEmail = async (email: string, password: string) => {
@@ -70,5 +90,5 @@ export function useAuth() {
     }
   };
 
-  return { registerWithEmail, registerWithGoogle, loginWithEmail, loginWithGoogle, getUserToken, token, isAuthReady, error };
+  return { registerWithEmail, registerWithGoogle, loginWithEmail, loginWithGoogle, getUserToken, token, isAuthReady, error, logout };
 }

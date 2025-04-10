@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth"; // Импортируем signOut
 
 const firebaseConfig = {
   apiKey: "AIzaSyAxfFm_vWEz4_h3xOD9DApqRTdTjbq2crY",
@@ -14,4 +14,5 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
-export { auth, createUserWithEmailAndPassword, signInWithPopup, googleProvider };
+// Экспортируем необходимые функции и объекты
+export { auth, createUserWithEmailAndPassword, signInWithPopup, googleProvider, signOut };
