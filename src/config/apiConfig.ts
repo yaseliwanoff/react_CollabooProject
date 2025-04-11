@@ -12,7 +12,8 @@ export const apiRoutes = {
   help: `${API_BASE_URL}/api-support/api/v1/ticket/paginated?limit=10&offset=0`,
   helpTicket: `${API_BASE_URL}/api-support/api/v1/ticket`,
   helpTicketCreate: `${API_BASE_URL}/api-support/api/v1/ticket/`,
-  paymentMethods: `${API_BASE_URL}/api-payment/api/v1/payment_type/list`
+  paymentMethods: `${API_BASE_URL}/api-payment/api/v1/payment_type/list`,
+  products: `${API_BASE_URL}/api-subs/api/v1/sub-plan/layout`,
 };
 
 export const socketRoutes = {

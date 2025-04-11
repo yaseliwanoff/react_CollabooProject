@@ -26,10 +26,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import ArrowDown from "@/assets/images/svg/arrow-down.svg";
-import { useAuth } from "@/hooks/useAuth";  // Импортируем useAuth
+import { useAuth } from "@/hooks/useAuth"; // Импортируем useAuth
+import { useUserProfile } from "@/hooks/useUserProfile"; // Импортируем хук useUserProfile
 
 export default function Header() {
-  const { token, isAuthReady, logout } = useAuth();  // Получаем состояние авторизации и функцию logout
+  const { token, isAuthReady, logout } = useAuth(); // Получаем состояние авторизации и функцию logout
+  const { userProfile, loading, error } = useUserProfile(token); // Используем хук для загрузки данных пользователя
 
   return (
     <header className="fixed w-full bg-white py-3.5 border-b border-[#E4E4E7] z-50">
@@ -157,8 +159,13 @@ export default function Header() {
                       <img width={36} height={36} src={AvatarImg} alt="avatar" />
                     </Avatar>
                     <div className="flex flex-col">
-                      <span className="font-semibold text-[14px]">user123451</span>
-                      <span className="text-gray-500 text-[12px]">m@example.com</span>
+                      {/* Отображаем данные пользователя */}
+                      <span className="font-semibold text-[14px]">
+                        {loading ? "Loading..." : userProfile?.username || "Username"}
+                      </span>
+                      <span className="text-gray-500 text-[12px]">
+                        {loading ? "Loading..." : userProfile?.email || "Email"}
+                      </span>
                     </div>
                   </div>
                   <DropdownMenuSeparator />

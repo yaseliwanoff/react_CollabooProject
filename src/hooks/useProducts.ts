@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { apiRoutes } from "@/config/apiConfig";
 import { auth } from "@/lib/firebase";
 import { getIdToken, onAuthStateChanged } from "firebase/auth";
 
@@ -15,7 +16,7 @@ interface Product {
   priceOptions: PriceOption[];
 }
 
-const API_URL = "http://217.114.14.99:8080/api-subs/api/v1/sub-plan/layout";
+const API_URL = apiRoutes.products;
 
 export function useProducts() {
   const [products, setProducts] = useState<Product[]>(() => {

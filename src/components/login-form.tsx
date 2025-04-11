@@ -38,10 +38,6 @@ export function LoginForm({
       setEmailError("Invalid email format.");
       return;
     }
-    if (password.length < 8) {
-      setPasswordError("Minimum length – 8 symbols");
-      return;
-    }
 
     try {
       await loginWithEmail(email, password);

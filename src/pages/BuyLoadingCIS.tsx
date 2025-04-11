@@ -117,9 +117,9 @@ export default function BuyLoading() {
             </BreadcrumbList>
           </Breadcrumb>
         </div>
-        )}
-        <div className="flex-grow mt-[80px] flex flex-col justify-center items-center">
-        <div className="max-w-[896px] w-full mx-auto flex flex-col items-center">
+      )}
+      <div className="flex-grow mt-[80px] flex flex-col justify-start items-start"> {/* Align to top */}
+        <div className="max-w-[896px] w-full mx-auto flex flex-col items-start"> {/* Align items to start */}
           <div className="flex gap-3 items-center">
             <div>
               <img src={MobbinAvatar} alt="product image" />

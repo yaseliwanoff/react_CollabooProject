@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://217.114.14.99:8080/api-subs';
+const API_URL = 'http://collaboo.co/api-subs';
 
 export const getOrigins = async () => {
   const response = await axios.get(`${API_URL}/origin`);

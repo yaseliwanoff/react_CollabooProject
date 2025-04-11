@@ -22,7 +22,7 @@ const Product: React.FC<ProductProps> = ({ avatar, title, description, active, p
     <div className="bg-white flex font-[Inter] flex-col sm:w-full md:w-[295px] lg:w-[310px] h-auto rounded-[12px] border border-[#E4E4E7] py-6 px-6">
       <div className='flex flex-col flex-grow'>
         <div className='flex justify-between items-start'>
-          <img src={avatar} alt="company logo" />
+          <img src={avatar} alt="company logo" className={active ? "" : "opacity-50"} />
           <button className='cursor-pointer pl-[30px] pb-[30px]'>
             <img width={14} height={14} src={Link} alt="icon" />
           </button>
@@ -50,7 +50,7 @@ const Product: React.FC<ProductProps> = ({ avatar, title, description, active, p
         </div>
       </div>
       <div className='mt-4'>
-        <Button variant={"full_dark"} onClick={() => onOrderClick({ title, description, avatar, priceOptions })}>Order</Button>
+        <Button variant={"full_dark"} onClick={() => onOrderClick({ title, description, avatar, priceOptions })} className={!active ? "opacity-50 cursor-not-allowed" : ""}>Order</Button>
       </div>
     </div>
   );
