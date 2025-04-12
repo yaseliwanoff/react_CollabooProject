@@ -31,7 +31,7 @@ import { useUserProfile } from "@/hooks/useUserProfile"; // Импортируе
 
 export default function Header() {
   const { token, isAuthReady, logout } = useAuth(); // Получаем состояние авторизации и функцию logout
-  const { userProfile, loading, error } = useUserProfile(token); // Используем хук для загрузки данных пользователя
+  const { userProfile, loading } = useUserProfile(token); // Используем хук для загрузки данных пользователя
 
   return (
     <header className="fixed w-full bg-white py-3.5 border-b border-[#E4E4E7] z-50">
