@@ -34,20 +34,20 @@ interface PriceOption {
   count: string;
 }
 
-interface ProductType {
-  id: number;
-  avatar: string;
-  title: string;
-  description: string;
-  active: boolean;
-  priceOptions: PriceOption[];
-}
+// interface ProductType {
+//   id: number;
+//   avatar: string;
+//   title: string;
+//   description: string;
+//   active: boolean;
+//   priceOptions: PriceOption[];
+// }
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [purchasedSubscriptions, setPurchasedSubscriptions] = useState<any[]>([]);
-  const [statusTexts, setStatusTexts] = useState<string[]>(Array(5).fill("Expired"));
+  const [statusTexts] = useState<string[]>(Array(5).fill("Expired"));
   const data = [
     { date: "04.02.2025", subscription: "#p1502251 Mobbin - 1 month", price: "3$" },
     { date: "01.12.2024", subscription: "#p1502251 Mobbin - 1 month", price: "3$" },
@@ -63,14 +63,14 @@ const Dashboard = () => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null);
   const [loadingText, setLoadingText] = useState("Complete payment in another tab");
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const { products, loading, error } = useProducts();
+  const { products, loading } = useProducts();
 
   // Используем useState для выбранной опции подписки
   const [selectedProduct, setSelectedProduct] = useState<any>(null); 
   const [selectedOption, setSelectedOption] = useState<PriceOption | null>(null);
 
   const isPaymentMethodSelected = selectedPaymentMethod !== null;
-  const isSubscriptionSelected = selectedOption !== null;
+  // const isSubscriptionSelected = selectedOption !== null;
 
   // Функции обработки
   const handleBlockClick = (index: number) => {

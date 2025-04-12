@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { apiRoutes, socketRoutes } from "@/config/apiConfig";
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import Chat from "@/assets/images/svg/Chat.svg";
 import { Textarea } from "@/components/ui/textarea";
-import { Link } from 'react-router-dom';
 import { useAuth } from "@/hooks/useAuth";
 
 // WebSocket URL с измененным форматом для безопасности
@@ -21,14 +20,12 @@ const HelpTicket: React.FC = () => {
   const [messageInput, setMessageInput] = useState('');
   const socketRef = useRef<WebSocket | null>(null);
 
-  // Функция для форматирования времени
   const formatTime = (date: Date) => {
     const hours = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
     return `${hours}:${minutes}`;
   };
 
-  // Загрузка сообщений из localStorage при инициализации компонента
   useEffect(() => {
     const savedMessages = localStorage.getItem(`ticket_${ticketId}_messages`);
     if (savedMessages) {
@@ -65,12 +62,10 @@ const HelpTicket: React.FC = () => {
 
     fetchTicket();
 
-    // Инициализация WebSocket с новым URL форматом
     socketRef.current = new WebSocket(`${SOCKET_URL}${ticketId}`);
 
     socketRef.current.onopen = () => {
       console.log('WebSocket connected');
-      // Отправляем токен для аутентификации после подключения
       if (socketRef.current && token) {
         socketRef.current.send(JSON.stringify({ action: 'authenticate', token: token }));
       }
@@ -78,22 +73,20 @@ const HelpTicket: React.FC = () => {
 
     socketRef.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log('Received message data:', data); // Логируем данные, полученные через WebSocket
+      console.log('Received message data:', data);
 
       if (data.ticketId === ticketId) {
-        // Если сообщение от этого тикета, обновляем состояние
         setMessages((prevMessages) => {
           const updatedMessages = [
             ...prevMessages,
             {
               username: data.message.username,
               content: data.message.content,
-              senderType: data.message.senderType, // Сохраняем тип отправителя (user/admin)
-              timestamp: new Date() // Добавляем время отправки
+              senderType: data.message.senderType,
+              timestamp: new Date()
             }
           ];
-          console.log('Updated messages:', updatedMessages); // Логируем обновленные сообщения
-          localStorage.setItem(`ticket_${ticketId}_messages`, JSON.stringify(updatedMessages)); // Сохраняем в localStorage
+          localStorage.setItem(`ticket_${ticketId}_messages`, JSON.stringify(updatedMessages));
           return updatedMessages;
         });
       }
@@ -109,13 +102,11 @@ const HelpTicket: React.FC = () => {
 
     return () => {
       if (socketRef.current) {
-        // Закрываем WebSocket только при выходе из тикета
         socketRef.current.close();
       }
     };
   }, [ticketId, token, isAuthReady]);
 
-  // Функция для отправки сообщений через WebSocket
   const sendMessage = async () => {
     if (!messageInput.trim()) return;
 
@@ -127,7 +118,6 @@ const HelpTicket: React.FC = () => {
       }
     };
 
-    // Здесь мы добавляем сообщение сразу в messages, чтобы оно отображалось на клиенте до того как придет ответ от сервера
     setMessages((prevMessages) => {
       const updatedMessages = [
         ...prevMessages,
@@ -135,19 +125,16 @@ const HelpTicket: React.FC = () => {
           username: 'You',
           content: messageInput,
           senderType: 'user',
-          timestamp: new Date() // Добавляем время отправки
+          timestamp: new Date()
         }
       ];
-      localStorage.setItem(`ticket_${ticketId}_messages`, JSON.stringify(updatedMessages)); // Сохраняем в localStorage
+      localStorage.setItem(`ticket_${ticketId}_messages`, JSON.stringify(updatedMessages));
       return updatedMessages;
     });
 
-    console.log('Sending message:', messageData); // Логируем данные сообщения перед отправкой
-
-    // Отправка сообщения через WebSocket
     if (socketRef.current) {
       socketRef.current.send(JSON.stringify(messageData));
-      setMessageInput(''); // Очистка поля ввода после отправки
+      setMessageInput('');
     } else {
       setError('WebSocket connection is not established.');
     }
@@ -177,28 +164,37 @@ const HelpTicket: React.FC = () => {
             </Link>
           </div>
         </div>
+
         <div className="lg:flex h-screen text-[Inter]">
-          <aside className="w-1/5 hidden lg:flex flex-col text-[14px]">
-            <Link to={"/help"}>
-              <button
-                className="button-sidebar"
-                onClick={() => setActiveTab('Tickets')}
-              >
-                Tickets
-              </button>
-            </Link>
+          <aside className="w-1/5 hidden lg:flex flex-col text-[14px] space-y-2 pr-4 border-r border-[#E5E7EB]">
+            <button
+              className={`button-sidebar ${activeTab === 'Tickets' ? 'font-bold' : ''}`}
+              onClick={() => setActiveTab('Tickets')}
+            >
+              Tickets
+            </button>
+            <button
+              className={`button-sidebar ${activeTab === 'Settings' ? 'font-bold' : ''}`}
+              onClick={() => setActiveTab('Settings')}
+            >
+              Settings
+            </button>
+            <button
+              className={`button-sidebar ${activeTab === 'FAQ' ? 'font-bold' : ''}`}
+              onClick={() => setActiveTab('FAQ')}
+            >
+              FAQ
+            </button>
           </aside>
-          <div className="lg:w-4/5">
-            {ticket && (
+
+          <div className="lg:w-4/5 px-4">
+            {activeTab === 'Tickets' && ticket && (
               <>
                 <h2 className="text-[20px] font-semibold mt-4">{ticket.title}</h2>
                 <div className="mt-6">
                   <h5 className="font-medium text-[14px] mb-2">Message</h5>
                   <Textarea
-                    style={{
-                      resize: "none",
-                      height: "115px",
-                    }}
+                    style={{ resize: "none", height: "115px" }}
                     placeholder="Enter your text here…"
                     value={messageInput}
                     onChange={(e) => setMessageInput(e.target.value)}
@@ -211,7 +207,7 @@ const HelpTicket: React.FC = () => {
                   {messages.map((msg, index) => (
                     <div
                       key={index}
-                      className={`py-4 border-b border-[#E5E7EB] ${msg.senderType === 'admin' ? 'bg-[#F3F4F6]' : ''}`} // Если админ, добавляем другой фон
+                      className={`py-4 border-b border-[#E5E7EB] ${msg.senderType === 'admin' ? 'bg-[#F3F4F6]' : ''}`}
                     >
                       <div className="flex justify-between items-center">
                         <span className={`font-semibold text-[14px] ${msg.senderType === 'admin' ? 'text-blue-500' : ''}`}>
@@ -220,12 +216,30 @@ const HelpTicket: React.FC = () => {
                         <span className="text-[#71717A] text-[14px] pl-6">{formatTime(new Date(msg.timestamp))}</span>
                       </div>
                       <div className="mt-1">
-                        <p>{msg.content}</p> {/* Отображаем контент сообщения */}
+                        <p>{msg.content}</p>
                       </div>
                     </div>
                   ))}
                 </div>
               </>
+            )}
+
+            {activeTab === 'Settings' && (
+              <div className="mt-6 text-[16px]">
+                <h2 className="text-[20px] font-semibold mb-4">Settings</h2>
+                <p>Here you can configure notification preferences, account settings, etc.</p>
+              </div>
+            )}
+
+            {activeTab === 'FAQ' && (
+              <div className="mt-6 text-[16px]">
+                <h2 className="text-[20px] font-semibold mb-4">Frequently Asked Questions</h2>
+                <ul className="list-disc pl-6 space-y-2">
+                  <li>How to create a new ticket?</li>
+                  <li>How to contact support?</li>
+                  <li>How to close a ticket?</li>
+                </ul>
+              </div>
             )}
           </div>
         </div>

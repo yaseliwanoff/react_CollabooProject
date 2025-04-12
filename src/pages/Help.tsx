@@ -16,7 +16,7 @@ interface Ticket {
 }
 
 const Help: React.FC = () => {
-  const { getUserToken, token, error: authError } = useAuth();
+  const { token, error: authError } = useAuth();
   const [activeTab, setActiveTab] = useState('Tickets');
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [isLoading, setIsLoading] = useState(true);

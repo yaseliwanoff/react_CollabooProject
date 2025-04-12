@@ -31,7 +31,6 @@ export default function BuyLoading() {
     const timer = setTimeout(() => {
       setLoading(false);
     }, 3000);
-
     return () => clearTimeout(timer);
   }, []);
 
@@ -39,7 +38,7 @@ export default function BuyLoading() {
     if (loading) return;
 
     const interval = setInterval(() => {
-      setTimeLeft(prevTime => {
+      setTimeLeft((prevTime) => {
         if (prevTime <= 0) {
           clearInterval(interval);
           return 0;
@@ -64,7 +63,7 @@ export default function BuyLoading() {
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
 
   const handlePaymentMade = () => {
@@ -91,7 +90,6 @@ export default function BuyLoading() {
 
   const handleSendReceipt = () => {
     setReceiptSent(true);
-
     setTimeout(() => {
       setPaymentError(true);
     }, 3000);
@@ -118,8 +116,9 @@ export default function BuyLoading() {
           </Breadcrumb>
         </div>
       )}
-      <div className="flex-grow mt-[80px] flex flex-col justify-start items-start"> {/* Align to top */}
-        <div className="max-w-[896px] w-full mx-auto flex flex-col items-start"> {/* Align items to start */}
+
+      <div className="flex-grow mt-[80px] flex flex-col justify-start items-start">
+        <div className="max-w-[896px] w-full mx-auto flex flex-col items-start">
           <div className="flex gap-3 items-center">
             <div>
               <img src={MobbinAvatar} alt="product image" />
@@ -129,15 +128,14 @@ export default function BuyLoading() {
               <p className="text-[14px] opacity-60">Sample description text with text for 1-2-3-4 rows of text.</p>
             </div>
           </div>
+
           {loading ? (
             <>
               <div className="w-[500px] h-[1px] bg-[#E4E4E7] mt-4"></div>
               <div className="flex justify-center items-center h-[500px]">
                 <div className="flex flex-col gap-2 justify-center items-center">
-                  <div className="loader"></div> 
-                  <div>
-                    <p>Receiving credentials</p>
-                  </div>
+                  <div className="loader"></div>
+                  <div><p>Receiving credentials</p></div>
                 </div>
               </div>
             </>
@@ -175,9 +173,7 @@ export default function BuyLoading() {
                     >
                       <div>
                         <button className="flex flex-col items-center gap-1">
-                          <span>
-                            <img className="w-[16px] h-[16px] object-contain" src={Drag} width={16} height={16} alt="icon" />
-                          </span>
+                          <span><img className="w-[16px] h-[16px]" src={Drag} alt="drag" /></span>
                           <span className="text-[15px]">Drag-n-drop file</span>
                         </button>
                       </div>
@@ -187,27 +183,14 @@ export default function BuyLoading() {
                       </div>
                       <div>
                         <Button variant={"light"} onClick={() => document.getElementById('fileInput')?.click()}>
-                          <span>
-                            <img className="w-[16px] h-[16px] object-contain" src={File} width={16} height={16} alt="icon" />
-                          </span>
+                          <span><img className="w-[16px] h-[16px]" src={File} alt="file" /></span>
                           <span>Select file</span>
                         </Button>
-                        <input
-                          type="file"
-                          id="fileInput"
-                          className="hidden"
-                          onChange={handleFileChange}
-                        />
+                        <input type="file" id="fileInput" className="hidden" onChange={handleFileChange} />
                       </div>
                     </div>
-                    {selectedFile && (
-                      <p className="mt-2 text-center">Selected file: {selectedFile.name}</p>
-                    )}
-                    <Button 
-                      variant={"full_dark"} 
-                      onClick={handleSendReceipt} 
-                      disabled={!selectedFile}
-                    >
+                    {selectedFile && <p className="mt-2 text-center">Selected file: {selectedFile.name}</p>}
+                    <Button variant={"full_dark"} onClick={handleSendReceipt} disabled={!selectedFile}>
                       Send receipt
                     </Button>
                   </div>
@@ -220,7 +203,9 @@ export default function BuyLoading() {
                   <div className="flex flex-col gap-2 items-center justify-center">
                     <div className="loader"></div>
                     <h5 className="font-semibold text-[16px]">Checking your payment</h5>
-                    <p className="font-normal text-[14px] text-center text-[#71717A] w-[230px]">Please don’t leave that page until the payment is confirmed</p>
+                    <p className="text-[14px] text-center text-[#71717A] w-[230px]">
+                      Please don’t leave that page until the payment is confirmed
+                    </p>
                   </div>
                 </div>
               </div>
@@ -230,19 +215,21 @@ export default function BuyLoading() {
               <PaymentsDetails />
               <div className="w-full mt-6 gap-6 justify-center flex flex-col items-center bg-white rounded-[6px] border border-[#E4E4E7] p-6">
                 <h5 className="font-semibold text-[16px]">Awaiting your payment</h5>
-                <p className="font-normal text-[24px]">{formatTime(timeLeft)}</p>
+                <p className="text-[24px]">{formatTime(timeLeft)}</p>
                 <div className="relative w-full h-4 bg-[#E4E4E7] rounded-full">
                   <div
                     className="absolute h-full rounded-full"
                     style={{
                       width: `${(timeLeft / 900) * 100}%`,
-                      backgroundColor: timeLeft > 600 ? "#2A9D90" : timeLeft > 300 ? "#FBBF24" : "#DC2626",
-                      transition: 'width 1s linear'
+                      backgroundColor: progressColor,
+                      transition: 'width 1s linear',
                     }}
                   />
                 </div>
               </div>
-              <Button className="mt-6" variant={"full_dark"} onClick={handlePaymentMade}>I made a payment</Button>
+              <Button className="mt-6" variant={"full_dark"} onClick={handlePaymentMade}>
+                I made a payment
+              </Button>
             </div>
           )}
         </div>

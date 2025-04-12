@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import Chat from "@/assets/images/svg/Chat.svg";
-import { Link } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import Copy from "@/assets/images/svg/Copy.svg";
 import {
