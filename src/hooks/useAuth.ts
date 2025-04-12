@@ -65,7 +65,7 @@ export function useAuth() {
       console.log("User ID:", user.uid); // Выводим в консоль ID пользователя
 
       // Отправляем данные пользователя на сервер для создания записи в базе данных
-      const response = await axios.post("https://your-api-endpoint.com/create-user", {
+      const response = await axios.post("https://collaboo.co/api-user/api/v1/user/", {
         uid: user.uid,
         email: user.email,
       });
