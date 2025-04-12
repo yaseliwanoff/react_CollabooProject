@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { apiRoutes } from "@/config/apiConfig";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
