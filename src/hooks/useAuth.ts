@@ -164,12 +164,14 @@ export function useAuth() {
   };
 
   // Логин через Google
-  const loginWithGoogle = async () => {
+  const loginWithGoogle = async (): Promise<boolean> => {
     try {
       await signInWithPopup(auth, googleProvider);
-      await getUserToken(); // Получаем и обновляем токен после авторизации через Google
+      await getUserToken(); // Обновляем токен
+      return true; // ✅ успешно залогинились
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
+      return false; // ❌ ошибка логина
     }
   };
 
