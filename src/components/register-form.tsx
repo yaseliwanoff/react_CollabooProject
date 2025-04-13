@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import GoogleIcon from "../assets/images/svg/google.svg";
 import { useAuth } from "@/hooks/useAuth";
 
 export function RegisterForm({ className, ...props }: React.ComponentProps<"form">) {
+  const navigate = useNavigate();
   const { registerWithEmail, registerWithGoogle, error } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,12 +28,17 @@ export function RegisterForm({ className, ...props }: React.ComponentProps<"form
       setEmailError("Invalid email format.");
       return;
     }
+
     if (!isPasswordValid) {
       setPasswordError("Minimum length – 8 symbols");
       return;
     }
 
-    await registerWithEmail(email, password);
+    const success = await registerWithEmail(email, password);
+
+    if (success) {
+      navigate("/login");
+    }
   };
 
   return (
@@ -70,7 +77,7 @@ export function RegisterForm({ className, ...props }: React.ComponentProps<"form
         <div className="relative text-center text-sm">
           <span className="bg-background text-muted-foreground px-2">Or continue with</span>
         </div>
-        <Button variant="outline" className="w-full" onClick={registerWithGoogle}>
+        <Button variant="outline" type="button" className="w-full" onClick={registerWithGoogle}>
           <img src={GoogleIcon} alt="google" />
           Sign up with Google
         </Button>

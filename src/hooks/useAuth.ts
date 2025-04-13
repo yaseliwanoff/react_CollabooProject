@@ -58,48 +58,108 @@ export function useAuth() {
   };
 
   // Регистрация с email и паролем
-  const registerWithEmail = async (email: string, password: string) => {
+  const registerWithEmail = async (email: string, password: string): Promise<boolean> => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user; // Получаем пользователя
-      console.log("User ID:", user.uid); // Выводим в консоль ID пользователя
-
-      // Отправляем данные пользователя на сервер для создания записи в базе данных
-      const response = await axios.post("https://collaboo.co/api-user/api/v1/user/", {
-        uid: user.uid,
-        email: user.email,
-      });
-
-      if (response.status === 200) {
-        console.log("User created on the server");
+      const user = userCredential.user;
+  
+      const idToken = await getIdToken(user);
+  
+      const response = await axios.post(
+        "https://collaboo.co/api-user/api/v1/user/",
+        {
+          user_id: user.uid,
+          email: user.email,
+          username: user.email?.split("@")[0] || "Anonymous",
+          is_admin: false,
+          image_url: "",
+          trc20_address: "",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${idToken}`,
+          },
+        }
+      );
+  
+      if (response.status === 200 || response.status === 201) {
+        console.log("✅ User created on the server");
+        await getUserToken();
+        return true; // ✅ регистрация прошла успешно
       } else {
-        console.error("Error creating user on server:", response.data);
+        console.error("❌ Error creating user on server:", response.data);
         setError("Failed to create user on server");
+        return false; // ❌ сервер вернул ошибку
       }
-
-      await getUserToken(); // Получаем и обновляем токен после регистрации
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+    } catch (err: any) {
+      console.error("❌ Registration error:", err);
+      if (err.code === "auth/email-already-in-use") {
+        setError("Email already in use");
+      } else {
+        setError(err.message || "An error occurred");
+      }
+      return false; // ❌ ошибка при регистрации
     }
   };
 
   // Регистрация через Google
   const registerWithGoogle = async () => {
     try {
-      await signInWithPopup(auth, googleProvider);
-      await getUserToken(); // Получаем и обновляем токен после авторизации через Google
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+  
+      if (user) {
+        const idToken = await getIdToken(user); // получаем Firebase ID токен
+  
+        const userData = {
+          user_id: user.uid,
+          username: user.displayName || "Anonymous",
+          is_admin: false,
+          image_url: user.photoURL || "",
+          trc20_address: "",
+        };
+  
+        const response = await axios.post(
+          "https://collaboo.co/api-user/api/v1/user/",
+          userData,
+          {
+            headers: {
+              Authorization: `Bearer ${idToken}`, // Добавляем токен сюда
+            },
+          }
+        );
+  
+        if (response.status === 200 || response.status === 201) {
+          console.log("Google user created on the server");
+        } else {
+          console.error("Failed to create Google user on server:", response.data);
+          setError("Server error during Google registration");
+        }
+  
+        await getUserToken(); // обновим токен в состоянии
+      }
     } catch (err) {
+      console.error(err);
       setError(err instanceof Error ? err.message : "An error occurred");
     }
-  };
+  };  
 
   // Логин с email и паролем
-  const loginWithEmail = async (email: string, password: string) => {
+  const loginWithEmail = async (email: string, password: string): Promise<boolean> => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      await getUserToken(); // Получаем и обновляем токен после входа
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+  
+      // Получаем Firebase токен и сохраняем
+      const idToken = await getIdToken(user);
+      localStorage.setItem("authToken", idToken);
+      setToken(idToken); // если нужно
+  
+      return true;
+    } catch (err: any) {
+      console.error("Login error:", err);
+      setError("Login failed. Please check your credentials.");
+      return false;
     }
   };
 

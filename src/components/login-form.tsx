@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ export function LoginForm({
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const navigate = useNavigate(); // хук для редиректа
 
   const isEmailValid = (email: string) => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
 
@@ -39,11 +41,15 @@ export function LoginForm({
       return;
     }
 
-    try {
-      await loginWithEmail(email, password);
-      console.log("Login successful");
-    } catch (err) {
-      console.error("Login failed:", err);
+    if (password.length < 8) {
+      setPasswordError("Password must be at least 8 characters.");
+      return;
+    }
+
+    const success = await loginWithEmail(email, password);
+
+    if (success) {
+      navigate("/");
     }
   };
 
@@ -92,7 +98,7 @@ export function LoginForm({
         <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
           <span className="bg-background text-muted-foreground relative z-10 px-2">Or continue with</span>
         </div>
-        <Button variant="outline" className="w-full" onClick={loginWithGoogle}>
+        <Button variant="outline" type="button" className="w-full" onClick={loginWithGoogle}>
           <img src={GoogleIcon} alt="google" />
           Login with Google
         </Button>
