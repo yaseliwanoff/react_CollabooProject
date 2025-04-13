@@ -41,6 +41,13 @@ export function RegisterForm({ className, ...props }: React.ComponentProps<"form
     }
   };
 
+  const handleGoogleRegister = async () => {
+    const success = await registerWithGoogle();
+    if (success) {
+      navigate("/login");
+    }
+  };
+
   return (
     <form className={cn("flex flex-col gap-6 font-[Inter]", className)} onSubmit={handleSubmit} {...props}>
       <div className="flex flex-col items-center gap-2 text-center">
@@ -77,7 +84,7 @@ export function RegisterForm({ className, ...props }: React.ComponentProps<"form
         <div className="relative text-center text-sm">
           <span className="bg-background text-muted-foreground px-2">Or continue with</span>
         </div>
-        <Button variant="outline" type="button" className="w-full" onClick={registerWithGoogle}>
+        <Button variant="outline" type="button" className="w-full" onClick={handleGoogleRegister}>
           <img src={GoogleIcon} alt="google" />
           Sign up with Google
         </Button>

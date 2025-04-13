@@ -103,7 +103,7 @@ export function useAuth() {
   };
 
   // Регистрация через Google
-  const registerWithGoogle = async () => {
+  const registerWithGoogle = async (): Promise<boolean> => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
@@ -124,25 +124,29 @@ export function useAuth() {
           userData,
           {
             headers: {
-              Authorization: `Bearer ${idToken}`, // Добавляем токен сюда
+              Authorization: `Bearer ${idToken}`,
             },
           }
         );
   
         if (response.status === 200 || response.status === 201) {
-          console.log("Google user created on the server");
+          console.log("✅ Google user created on the server");
+          await getUserToken(); // обновим токен
+          return true; // ✅ успешная регистрация
         } else {
-          console.error("Failed to create Google user on server:", response.data);
+          console.error("❌ Server error during Google registration:", response.data);
           setError("Server error during Google registration");
+          return false;
         }
-  
-        await getUserToken(); // обновим токен в состоянии
       }
+  
+      return false;
     } catch (err) {
-      console.error(err);
+      console.error("❌ registerWithGoogle error:", err);
       setError(err instanceof Error ? err.message : "An error occurred");
+      return false;
     }
-  };  
+  };
 
   // Логин с email и паролем
   const loginWithEmail = async (email: string, password: string): Promise<boolean> => {
