@@ -37,23 +37,23 @@ export default function Header() {
     <header className="fixed w-full bg-white py-3.5 border-b border-[#E4E4E7] z-50">
       <div className="container flex items-center justify-between">
         <div className="hidden lg:flex">
-          <a href="" className="flex items-center gap-2">
+          <div className="flex cursor-default items-center gap-2">
             <span>
               <img src={Logo} alt="logo" />
             </span>
             <span className="font-semibold">Collaboo</span>
-          </a>
+          </div>
         </div>
         <div className="flex lg:hidden">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <a href="" className="flex items-center gap-2">
+              <div className="flex items-center gap-2">
                 <span>
                   <img src={Logo} alt="logo" />
                 </span>
                 <span className="font-semibold">Collaboo</span>
                 <img src={ArrowDown} alt="icon" />
-              </a>
+              </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
               <DropdownMenuGroup>
