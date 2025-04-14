@@ -71,7 +71,7 @@ const Profile: React.FC = () => {
                       <p className='text-[#71717A] text-[14px]'>Used when you contact support team</p>
                     </div>
                     <div className='md:w-1/2'>
-                      <Input className="w-full" placeholder='username' defaultValue={"user12345"} />
+                      <Input className="w-full" placeholder='username' defaultValue={"user12345"}  />
                     </div>
                   </div>
                 </div>
@@ -112,7 +112,7 @@ const Profile: React.FC = () => {
                       <p className='text-[#71717A] text-[14px]'>Used for payouts from referral program</p>
                     </div>
                     <div className='md:w-1/2'>
-                      <Input className="w-full" placeholder='Enter USDT TRC-20 address…' defaultValue={"user12345"} />
+                      <Input className="w-full" placeholder='Enter USDT TRC-20 address…' />
                     </div>
                   </div>
                 </div>

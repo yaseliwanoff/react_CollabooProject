@@ -187,7 +187,7 @@ export default function Header() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
                     <img src={LogOut} alt="Log out" />
-                    <span onClick={logout}><a href="#">Log out</a></span> {/* Вызов функции logout */}
+                    <span onClick={logout}><a href="#">Log out</a></span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

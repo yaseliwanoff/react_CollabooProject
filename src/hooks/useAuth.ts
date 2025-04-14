@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { auth, createUserWithEmailAndPassword, signInWithPopup, googleProvider, signOut } from "@/lib/firebase"; // Импортируем signOut
 import { signInWithEmailAndPassword, getIdToken, onAuthStateChanged } from "firebase/auth";
 import axios from "axios"; // Импортируем axios для отправки запросов на сервер
 
 export function useAuth() {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem("authToken"));
+  const navigate = useNavigate();
   const [isAuthReady, setIsAuthReady] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,6 +53,7 @@ export function useAuth() {
       await signOut(auth); // Выход из аккаунта
       localStorage.removeItem("authToken"); // Удаляем токен из локального хранилища
       setToken(null); // Обновляем состояние токена
+      navigate("/login");
     } catch (err) {
       console.error("Error signing out:", err);
       setError("Failed to sign out: ");
