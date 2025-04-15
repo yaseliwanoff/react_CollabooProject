@@ -9,11 +9,16 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { useAuth } from "@/hooks/useAuth";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 const Profile: React.FC = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const [newPassword, setNewPassword] = useState('');
   const [error, setError] = useState('');
+  const { token } = useAuth();
+  const { userProfile, loading } = useUserProfile(token);
+
 
   const handleNewPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -71,7 +76,12 @@ const Profile: React.FC = () => {
                       <p className='text-[#71717A] text-[14px]'>Used when you contact support team</p>
                     </div>
                     <div className='md:w-1/2'>
-                      <Input className="w-full" placeholder='username' defaultValue={"user12345"}  />
+                      <Input 
+                        className="w-full" 
+                        placeholder='username' 
+                        defaultValue={userProfile?.username || ""} 
+                        disabled={loading}
+                      />
                     </div>
                   </div>
                 </div>
