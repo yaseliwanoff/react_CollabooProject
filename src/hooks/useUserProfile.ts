@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { auth } from "@/lib/firebase";
 
 interface UserProfile {
   username: string;
   email: string;
   image_url: string | null;
+  trc20_address?: string;
 }
 
 export function useUserProfile(token: string | null) {
@@ -25,11 +27,14 @@ export function useUserProfile(token: string | null) {
 
         console.log("API Response:", response.data);
 
-        // Обрабатываем данные пользователя
+        const firebaseUser = auth.currentUser;
+        const email = firebaseUser?.email || "unknown@email.com";
+
         setUserProfile({
           username: response.data.username,
-          email: response.data.email,
+          email: email,
           image_url: response.data.image_url || null,
+          trc20_address: response.data.trc20_address || "",
         });
       } catch (error: any) {
         console.error("Ошибка при получении профиля:", error);
