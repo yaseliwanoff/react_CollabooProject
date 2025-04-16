@@ -25,22 +25,56 @@ const Profile: React.FC = () => {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string>(AvatarImg);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
   const handleSave = async () => {
     if (!token) return;
-    if (!username.trim()) {
-      setStatusMessage("❌ Username cannot be empty");
-      return;
-    }
-
+  
     const lowerUsername = username.trim().toLowerCase();
-
+  
     if (reservedUsernames.includes(lowerUsername)) {
       setStatusMessage("❌ This username is reserved and cannot be used.");
       return;
     }
-
+  
     try {
       setSaving(true);
+  
+      // Сначала загружаем аватар, если он есть
+      if (avatarFile) {
+        const formData = new FormData();
+        formData.append('file', avatarFile);
+      
+        try {
+          const response = await fetch("https://collaboo.co/api-user/api/v1/user/image", {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              // Content-Type — `fetch` сам выставит `multipart/form-data` с boundary
+            },
+            body: formData,
+          });
+      
+          const data = await response.json();
+      
+          if (response.ok && data.filepath) {
+            console.log("✅ Аватар загружен:", data.filepath);
+            setAvatarPreview(data.filepath);
+          } else {
+            console.error("❌ Ошибка при загрузке:", data);
+            setStatusMessage("Failed to upload avatar");
+            return;
+          }
+        } catch (error) {
+          console.error("❌ Ошибка сети при загрузке аватара:", error);
+          setStatusMessage("Failed to upload avatar");
+          return;
+        }
+      }      
+  
+      // Затем сохраняем username, даже если он пустой
       const response = await axios.put(
         "https://collaboo.co/api-user/api/v1/user/",
         { username: username.trim() },
@@ -50,14 +84,14 @@ const Profile: React.FC = () => {
           },
         }
       );
-
+  
       if (response.status === 200) {
         setStatusMessage("Username successfully updated");
       } else {
         setStatusMessage("Failed to update username");
       }
     } catch (err: any) {
-      console.error("Error updating username:", err);
+      console.error("Error updating profile:", err);
       if (err.response?.status === 409) {
         setStatusMessage("This username is already taken");
       } else {
@@ -66,7 +100,7 @@ const Profile: React.FC = () => {
     } finally {
       setSaving(false);
     }
-  };
+  };  
 
 
   const handleNewPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -143,14 +177,40 @@ const Profile: React.FC = () => {
                     </div>
                     <div className='md:w-1/2 flex items-center gap-2.5'>
                       <Avatar>
-                        <img width={36} height={36} src={AvatarImg} alt="avatar" />
+                        <img width={36} height={36} src={avatarPreview} alt="avatar" />
                       </Avatar>
-                      <Button variant={"light"}>
-                        <span>
-                          <img src={Drag} alt="icon" />
-                        </span>
+                      <Button variant={"light"} onClick={() => fileInputRef.current?.click()}>
+                        <span><img src={Drag} alt="icon" /></span>
                         <span>Upload</span>
                       </Button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/png, image/jpeg, image/jpg"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                        
+                          const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+                          const maxSizeMB = 5;
+                          const maxSizeBytes = maxSizeMB * 1024 * 1024;
+                        
+                          if (!allowedTypes.includes(file.type)) {
+                            setStatusMessage("❌ Only JPEG and PNG images are allowed.");
+                            return;
+                          }
+                        
+                          if (file.size > maxSizeBytes) {
+                            setStatusMessage(`❌ Image size must be less than ${maxSizeMB}MB.`);
+                            return;
+                          }
+                        
+                          setAvatarFile(file);
+                          setAvatarPreview(URL.createObjectURL(file));
+                          setStatusMessage(null); // очищаем ошибку
+                        }}                        
+                        className="hidden"
+                      />
                     </div>
                   </div>
                 </div>
