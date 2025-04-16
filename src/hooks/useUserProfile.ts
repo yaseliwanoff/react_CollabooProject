@@ -4,6 +4,7 @@ import axios from "axios";
 interface UserProfile {
   username: string;
   email: string;
+  image_url: string | null;
 }
 
 export function useUserProfile(token: string | null) {
@@ -16,10 +17,9 @@ export function useUserProfile(token: string | null) {
 
     const fetchUserProfile = async () => {
       try {
-        // Пример исправленного запроса с GET методом и передачей токена в заголовках
         const response = await axios.get("https://collaboo.co/api-user/api/v1/user/", {
           headers: {
-            Authorization: `Bearer ${token}`,  // Токен передается в заголовке
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -29,6 +29,7 @@ export function useUserProfile(token: string | null) {
         setUserProfile({
           username: response.data.username,
           email: response.data.email,
+          image_url: response.data.image_url || null,
         });
       } catch (error: any) {
         console.error("Ошибка при получении профиля:", error);

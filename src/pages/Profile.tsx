@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -20,11 +20,12 @@ const Profile: React.FC = () => {
   const [newPassword, setNewPassword] = useState('');
   const [error, setError] = useState('');
   const { token } = useAuth();
-  const { userProfile, loading } = useUserProfile(token);
-  const [username, setUsername] = useState(userProfile?.username || "");
+  const { userProfile: userProfileFromApi, loading } = useUserProfile(token);
+  const [username, setUsername] = useState(userProfileFromApi?.username || "");
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
+  const [userProfile, setUserProfile] = useState<{ username: string, image_url: string } | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>(AvatarImg);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -35,7 +36,7 @@ const Profile: React.FC = () => {
     const lowerUsername = username.trim().toLowerCase();
   
     if (reservedUsernames.includes(lowerUsername)) {
-      setStatusMessage("❌ This username is reserved and cannot be used.");
+      setStatusMessage("This username is reserved and cannot be used.");
       return;
     }
   
@@ -52,7 +53,6 @@ const Profile: React.FC = () => {
             method: 'POST',
             headers: {
               Authorization: `Bearer ${token}`,
-              // Content-Type — `fetch` сам выставит `multipart/form-data` с boundary
             },
             body: formData,
           });
@@ -60,15 +60,23 @@ const Profile: React.FC = () => {
           const data = await response.json();
       
           if (response.ok && data.filepath) {
-            console.log("✅ Аватар загружен:", data.filepath);
+            console.log("Аватар загружен:", data.filepath);
             setAvatarPreview(data.filepath);
+
+            setUserProfile((prevProfile) => {
+              if (!prevProfile) return null;
+              return {
+                ...prevProfile,
+                image_url: data.filepath,
+              };
+            });
           } else {
-            console.error("❌ Ошибка при загрузке:", data);
+            console.error("Ошибка при загрузке:", data);
             setStatusMessage("Failed to upload avatar");
             return;
           }
         } catch (error) {
-          console.error("❌ Ошибка сети при загрузке аватара:", error);
+          console.error("Ошибка сети при загрузке аватара:", error);
           setStatusMessage("Failed to upload avatar");
           return;
         }
@@ -100,8 +108,16 @@ const Profile: React.FC = () => {
     } finally {
       setSaving(false);
     }
-  };  
+  };
 
+  useEffect(() => {
+    if (userProfileFromApi?.image_url) {
+      setAvatarPreview(userProfileFromApi.image_url);
+    }
+    if (userProfileFromApi?.username) {
+      setUsername(userProfileFromApi.username);
+    }
+  }, [userProfileFromApi]);
 
   const handleNewPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -161,7 +177,7 @@ const Profile: React.FC = () => {
                     <div className='md:w-1/2'>
                       <Input
                         className="w-full"
-                        placeholder={userProfile?.username || ""} 
+                        placeholder={userProfileFromApi?.username || ""} 
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         disabled={loading || saving}
