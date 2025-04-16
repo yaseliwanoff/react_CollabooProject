@@ -119,6 +119,13 @@ const Profile: React.FC = () => {
     }
   }, [userProfileFromApi]);
 
+  useEffect(() => {
+    if (statusMessage) {
+      const timer = setTimeout(() => setStatusMessage(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [statusMessage]);
+
   const handleNewPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setNewPassword(value);
@@ -237,7 +244,11 @@ const Profile: React.FC = () => {
                       <p className='text-[#71717A] text-[14px]'>Used to login to the service (can’t be changed)</p>
                     </div>
                     <div className='md:w-1/2'>
-                      <Input className="w-full" placeholder='sample@mail.com' disabled />
+                      <Input
+                        className="w-full"
+                        placeholder={userProfileFromApi?.email || 'sample@mail.com'}
+                        disabled
+                      />
                     </div>
                   </div>
                 </div>

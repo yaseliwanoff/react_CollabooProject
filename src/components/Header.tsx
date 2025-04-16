@@ -150,13 +150,13 @@ export default function Header() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Avatar>
-                    <img width={36} height={36} src={AvatarImg} alt="avatar" />
+                    <img src={userProfile?.image_url || AvatarImg} alt="avatar" />
                   </Avatar>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56">
                   <div className="flex items-center p-2">
                     <Avatar className="mr-2">
-                      <img width={36} height={36} src={AvatarImg} alt="avatar" />
+                      <img src={userProfile?.image_url || AvatarImg} alt="avatar" />
                     </Avatar>
                     <div className="flex flex-col">
                       {/* Отображаем данные пользователя */}
