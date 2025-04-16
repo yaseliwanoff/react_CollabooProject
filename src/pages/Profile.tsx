@@ -25,6 +25,7 @@ const Profile: React.FC = () => {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
+  const [trc20Address, setTrc20Address] = useState(userProfileFromApi?.trc20_address || "");
   const [userProfile, setUserProfile] = useState<{ username: string, image_url: string } | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>(AvatarImg);
@@ -85,7 +86,7 @@ const Profile: React.FC = () => {
       // Затем сохраняем username, даже если он пустой
       const response = await axios.put(
         "https://collaboo.co/api-user/api/v1/user/",
-        { username: username.trim() },
+        { username: username.trim(), trc20_address: trc20Address.trim(), },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -109,6 +110,18 @@ const Profile: React.FC = () => {
       setSaving(false);
     }
   };
+
+  useEffect(() => {
+    if (userProfileFromApi?.image_url) {
+      setAvatarPreview(userProfileFromApi.image_url);
+    }
+    if (userProfileFromApi?.username) {
+      setUsername(userProfileFromApi.username);
+    }
+    if (userProfileFromApi?.trc20_address) {
+      setTrc20Address(userProfileFromApi.trc20_address);
+    }
+  }, [userProfileFromApi]);  
 
   useEffect(() => {
     if (userProfileFromApi?.image_url) {
@@ -259,7 +272,13 @@ const Profile: React.FC = () => {
                       <p className='text-[#71717A] text-[14px]'>Used for payouts from referral program</p>
                     </div>
                     <div className='md:w-1/2'>
-                      <Input className="w-full" placeholder='Enter USDT TRC-20 address…' />
+                      <Input
+                        className="w-full"
+                        placeholder='Enter USDT TRC-20 address…'
+                        value={trc20Address}
+                        onChange={(e) => setTrc20Address(e.target.value)}
+                        disabled={loading || saving}
+                      />
                     </div>
                   </div>
                 </div>
