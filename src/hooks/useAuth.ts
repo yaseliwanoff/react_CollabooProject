@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth, createUserWithEmailAndPassword, signInWithPopup, googleProvider, signOut } from "@/lib/firebase"; // Импортируем signOut
+import { auth, createUserWithEmailAndPassword, signInWithPopup, googleProvider, signOut } from "@/lib/firebase";
 import { signInWithEmailAndPassword, getIdToken, onAuthStateChanged } from "firebase/auth";
-import axios from "axios"; // Импортируем axios для отправки запросов на сервер
+import axios from "axios";
 
 export function useAuth() {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem("authToken"));

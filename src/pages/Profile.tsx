@@ -11,6 +11,9 @@ import {
 } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import axios from "axios";
+
+const reservedUsernames = ["admin", "administrator", "moderator", "support"];
 
 const Profile: React.FC = () => {
   const [activeTab, setActiveTab] = useState('profile');
@@ -18,6 +21,52 @@ const Profile: React.FC = () => {
   const [error, setError] = useState('');
   const { token } = useAuth();
   const { userProfile, loading } = useUserProfile(token);
+  const [username, setUsername] = useState(userProfile?.username || "");
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    if (!token) return;
+    if (!username.trim()) {
+      setStatusMessage("❌ Username cannot be empty");
+      return;
+    }
+
+    const lowerUsername = username.trim().toLowerCase();
+
+    if (reservedUsernames.includes(lowerUsername)) {
+      setStatusMessage("❌ This username is reserved and cannot be used.");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const response = await axios.put(
+        "https://collaboo.co/api-user/api/v1/user/",
+        { username: username.trim() },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        setStatusMessage("Username successfully updated");
+      } else {
+        setStatusMessage("Failed to update username");
+      }
+    } catch (err: any) {
+      console.error("Error updating username:", err);
+      if (err.response?.status === 409) {
+        setStatusMessage("This username is already taken");
+      } else {
+        setStatusMessage("Something went wrong");
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
 
 
   const handleNewPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,11 +125,12 @@ const Profile: React.FC = () => {
                       <p className='text-[#71717A] text-[14px]'>Used when you contact support team</p>
                     </div>
                     <div className='md:w-1/2'>
-                      <Input 
-                        className="w-full" 
-                        placeholder='username' 
-                        defaultValue={userProfile?.username || ""} 
-                        disabled={loading}
+                      <Input
+                        className="w-full"
+                        placeholder={userProfile?.username || ""} 
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        disabled={loading || saving}
                       />
                     </div>
                   </div>
@@ -126,8 +176,13 @@ const Profile: React.FC = () => {
                     </div>
                   </div>
                 </div>
+                {statusMessage && (
+                  <p className="mt-2 text-sm text-gray-700">{statusMessage}</p>
+                )}
                 <div className='flex mt-6 justify-end'>
-                  <Button variant={"default"}>Save</Button>
+                  <Button onClick={handleSave} disabled={saving}>
+                    {saving ? "Saving..." : "Save"}
+                  </Button>
                 </div>
               </div>
             )}
