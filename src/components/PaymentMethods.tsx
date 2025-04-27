@@ -50,9 +50,10 @@ const PaymentMethods = ({ onPaymentMethodChange }: { onPaymentMethodChange: (met
   const cisMethods = paymentMethods.filter(method => method.category === "cis");
 
   const renderMethodBlock = (method: any) => (
-    <div
+    <label
       key={method.gateway}
-      className="items-top space-x-2 border border-[#E4E4E7] hover:border-[#000000] ease-in-out duration-300 rounded-[8px] py-[8px] px-[8px] shadow shadow-black/5"
+      htmlFor={method.gateway}
+      className="cursor-pointer block items-top space-x-2 border border-[#E4E4E7] hover:border-[#000000] ease-in-out duration-300 rounded-[8px] py-[8px] px-[8px] shadow shadow-black/5"
     >
       <div className="flex justify-between items-center">
         <div className="flex gap-2">
@@ -61,23 +62,22 @@ const PaymentMethods = ({ onPaymentMethodChange }: { onPaymentMethodChange: (met
             id={method.gateway}
             name="paymentMethod"
             onChange={() => onPaymentMethodChange(method)}
+            className="sr-only" // скрываем радиокнопку, но она всё ещё работает
           />
+          {method.image_url ? (
+            <img src={method.image_url} alt={method.title} className="w-8 h-8" />
+          ) : (
+            <span className="text-sm font-medium">{method.title}</span>
+          )}
           <div className="grid gap-1.5 leading-none">
-            <label htmlFor={method.gateway} className="text-sm font-medium leading-none">
-              {method.image_url ? (
-                <img src={method.image_url} alt={method.title} className="w-8 h-8" />
-              ) : (
-                method.title && <span>{method.title}</span>
-              )}
-            </label>
             <p className="text-sm text-muted-foreground">{method.description}</p>
           </div>
         </div>
         <div>
-          <Badge variant={"bold"}>{method.fee_percentage}% fee</Badge>
+          <Badge variant="bold">{method.fee_percentage}% fee</Badge>
         </div>
       </div>
-    </div>
+    </label>
   );
 
   return (

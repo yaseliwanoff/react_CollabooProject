@@ -52,10 +52,10 @@ function SheetContent({
 }) {
   return (
     <SheetPortal>
-      <SheetOverlay />
+      <SheetOverlay className="" />
 
-      <SheetPrimitive.Close className="fixed top-[0px] right-4 z-[100] border border-[#E4E4E7] bg-white p-4 rounded-full ring-offset-background focus:ring-ring data-[state=open]:bg-secondary opacity-100 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none">
-        <XIcon className="size-3" />
+      <SheetPrimitive.Close className="fixed top-[0px] mt-3.5 right-4 z-[100] border border-[#E4E4E7] bg-white p-3 rounded-full ring-offset-background focus:ring-ring data-[state=open]:bg-secondary opacity-100 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none">
+        <XIcon className="size-[23px] text-[#18181B]" />
         <span className="sr-only">Close</span>
       </SheetPrimitive.Close>
 

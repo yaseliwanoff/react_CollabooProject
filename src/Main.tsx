@@ -1,5 +1,5 @@
-import React, { ReactNode } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { ReactNode } from "react";
+import { useLocation } from "react-router-dom";
 import Header from "@/components/Header";
 
 interface MainProps {
@@ -10,16 +10,15 @@ const Main: React.FC<MainProps> = ({ children }) => {
   const location = useLocation();
 
   // Определение, на каких маршрутах не должен отоброжаться Header
-  const showHeader = location.pathname !== '/login' && location.pathname !== '/register';
+  const showHeader =
+    location.pathname !== "/login" && location.pathname !== "/register";
 
   return (
     <>
       {showHeader && <Header />}
-      <main className=''>
-        {children}
-      </main>
+      <main className="">{children}</main>
     </>
   );
-}
+};
 
 export default Main;

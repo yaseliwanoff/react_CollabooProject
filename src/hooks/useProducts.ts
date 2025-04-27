@@ -14,6 +14,8 @@ interface Product {
   description: string;
   active: boolean;
   priceOptions: PriceOption[];
+  site: string;
+  avatar: string;
 }
 
 const API_URL = apiRoutes.products;
@@ -44,19 +46,38 @@ export function useProducts() {
         }
 
         const data = await response.json();
-        const mappedProducts = data.map((item: any) => ({
-          id: item.id,
-          title: item.title,
-          description: item.description,
-          active: item.status === "shown",
-          priceOptions: item.price_table.map((price: any) => ({
-            price: price.amount,
-            count: price.duration,
-          })),
-        }));
+        const baseUrl = "https://collaboo.co";
+        const mappedProducts = data.map((item: any) => {
+          const origin = item.origins?.[0];
+
+          console.log("origin.picture from backend:", origin?.picture);
+
+          const rawPicture = (origin?.picture || "").trim();
+          let avatar = "";
+          if (rawPicture.startsWith("http")) {
+            avatar = rawPicture;
+          } else if (rawPicture.startsWith("/")) {
+            avatar = `${baseUrl}${rawPicture}`;
+          } else {
+            avatar = `${baseUrl}/${rawPicture}`;
+          }
+
+          return {
+            id: item.id,
+            title: item.title,
+            description: item.description,
+            active: item.status === "shown",
+            site: origin?.site || "",
+            avatar,
+            priceOptions: item.price_table.map((price: any) => ({
+              price: price.amount,
+              count: price.duration.replace(/mons?$/, "month"),
+            })),
+          };
+        });
 
         setProducts(mappedProducts);
-        localStorage.setItem("products", JSON.stringify(mappedProducts)); // Сохраняем в localStorage
+        localStorage.setItem("products", JSON.stringify(mappedProducts));
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to fetch products");
       } finally {

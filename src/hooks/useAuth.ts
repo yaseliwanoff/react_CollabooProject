@@ -5,10 +5,24 @@ import { signInWithEmailAndPassword, getIdToken, onAuthStateChanged } from "fire
 import axios from "axios";
 
 export function useAuth() {
+  const [username, setUsername] = useState<string>('');
   const [token, setToken] = useState<string | null>(() => localStorage.getItem("authToken"));
   const navigate = useNavigate();
   const [isAuthReady, setIsAuthReady] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setUsername(user.displayName || 'User'); // Устанавливаем имя пользователя
+      } else {
+        setUsername(''); // Очистить имя пользователя при выходе
+      }
+      setIsAuthReady(true);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   // Функция для получения актуального токена
   const getUserToken = async () => {
@@ -84,15 +98,17 @@ export function useAuth() {
           },
         }
       );
+
+      console.log('Response status:', response.status);
   
       if (response.status === 200 || response.status === 201) {
         console.log("✅ User created on the server");
         await getUserToken();
-        return true; // ✅ регистрация прошла успешно
+        return true;
       } else {
         console.error("❌ Error creating user on server:", response.data);
         setError("Failed to create user on server");
-        return false; // ❌ сервер вернул ошибку
+        return false;
       }
     } catch (err: any) {
       console.error("❌ Registration error:", err);
@@ -101,7 +117,7 @@ export function useAuth() {
       } else {
         setError(err.message || "An error occurred");
       }
-      return false; // ❌ ошибка при регистрации
+      return false;
     }
   };
 
@@ -135,7 +151,7 @@ export function useAuth() {
         if (response.status === 200 || response.status === 201) {
           console.log("✅ Google user created on the server");
           await getUserToken(); // обновим токен
-          return true; // ✅ успешная регистрация
+          return true;
         } else {
           console.error("❌ Server error during Google registration:", response.data);
           setError("Server error during Google registration");
@@ -174,15 +190,16 @@ export function useAuth() {
   const loginWithGoogle = async (): Promise<boolean> => {
     try {
       await signInWithPopup(auth, googleProvider);
-      await getUserToken(); // Обновляем токен
-      return true; // ✅ успешно залогинились
+      await getUserToken();
+      return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
-      return false; // ❌ ошибка логина
+      return false;
     }
   };
 
   return {
+    username,
     registerWithEmail,
     registerWithGoogle,
     loginWithEmail,

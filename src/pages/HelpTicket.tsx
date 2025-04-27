@@ -6,13 +6,12 @@ import Chat from "@/assets/images/svg/Chat.svg";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 
-// WebSocket URL с измененным форматом для безопасности
 const SOCKET_URL = socketRoutes.ticketWS;
 
 const HelpTicket: React.FC = () => {
   const [activeTab, setActiveTab] = useState('Tickets');
   const { ticketId } = useParams<{ ticketId: string }>();
-  const { token, isAuthReady, error: authError } = useAuth();
+  const { token, isAuthReady, error: authError, token: userToken } = useAuth();
   const [ticket, setTicket] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -20,18 +19,48 @@ const HelpTicket: React.FC = () => {
   const [messageInput, setMessageInput] = useState('');
   const socketRef = useRef<WebSocket | null>(null);
 
-  const formatTime = (date: Date) => {
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
+  // Хранение имени пользователя (username) для отправки сообщений
+  const [username, setUsername] = useState<string | null>(null);
+
+  const formatTime = (date: Date | string) => {
+    const d = typeof date === 'string' ? new Date(date) : date;
+    const hours = d.getHours().toString().padStart(2, '0');
+    const minutes = d.getMinutes().toString().padStart(2, '0');
     return `${hours}:${minutes}`;
   };
 
-  useEffect(() => {
-    const savedMessages = localStorage.getItem(`ticket_${ticketId}_messages`);
-    if (savedMessages) {
-      setMessages(JSON.parse(savedMessages));
-    }
+  // Функция для загрузки сообщений
+  const fetchMessages = async (ticketId: string, token: string) => {
+    try {
+      const messagesUrl = `https://collaboo.co/api-support/api/v1/message/by-ticket?ticket_id=${ticketId}`;
+      console.log(messagesUrl);
 
+      const response = await fetch(messagesUrl, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+
+        setMessages(data.map((msg: any) => ({
+          username: msg.username || 'User',
+          content: msg.content,
+          senderType: msg.senderType || 'user',
+          timestamp: msg.created_at
+        })));
+      } else {
+        throw new Error(`Failed to fetch messages. Status: ${response.status}`);
+      }
+    } catch (err) {
+      console.error("Error fetching messages:", err);
+    }
+  };
+
+  useEffect(() => {
     if (!isAuthReady || !ticketId || !token) return;
 
     const fetchTicket = async () => {
@@ -49,6 +78,9 @@ const HelpTicket: React.FC = () => {
         if (response.ok) {
           const data = await response.json();
           setTicket(data);
+
+          // Загружаем сообщения отдельно
+          await fetchMessages(ticketId, token);
         } else {
           throw new Error(`Failed to load ticket. Status: ${response.status}`);
         }
@@ -62,33 +94,32 @@ const HelpTicket: React.FC = () => {
 
     fetchTicket();
 
+    // Устанавливаем WebSocket соединение
     socketRef.current = new WebSocket(`${SOCKET_URL}${ticketId}`);
 
     socketRef.current.onopen = () => {
       console.log('WebSocket connected');
       if (socketRef.current && token) {
-        socketRef.current.send(JSON.stringify({ action: 'authenticate', token: token }));
+        socketRef.current.send(JSON.stringify({ action: 'authenticate', token }));
       }
     };
 
+    // Обработчик для WebSocket сообщений
     socketRef.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log('Received message data:', data);
+      if (data?.message && data.ticketId === ticketId) {
+        const { username, content, senderType, timestamp } = data.message;
 
-      if (data.ticketId === ticketId) {
-        setMessages((prevMessages) => {
-          const updatedMessages = [
-            ...prevMessages,
-            {
-              username: data.message.username,
-              content: data.message.content,
-              senderType: data.message.senderType,
-              timestamp: new Date()
-            }
-          ];
-          localStorage.setItem(`ticket_${ticketId}_messages`, JSON.stringify(updatedMessages));
-          return updatedMessages;
-        });
+        // Обновляем сообщения через setMessages
+        setMessages(prev => [
+          ...prev,
+          {
+            username,
+            content,
+            senderType,
+            timestamp: timestamp || new Date()
+          }
+        ]);
       }
     };
 
@@ -101,36 +132,34 @@ const HelpTicket: React.FC = () => {
     };
 
     return () => {
-      if (socketRef.current) {
-        socketRef.current.close();
-      }
+      socketRef.current?.close();
     };
   }, [ticketId, token, isAuthReady]);
 
   const sendMessage = async () => {
     if (!messageInput.trim()) return;
 
+    // Используем username из useAuth
+    const currentUsername = username || 'You';
+
     const messageData = {
       event: "message/create",
       body: {
-        ticketId: ticketId,
+        ticketId,
         content: messageInput
       }
     };
 
-    setMessages((prevMessages) => {
-      const updatedMessages = [
-        ...prevMessages,
-        {
-          username: 'You',
-          content: messageInput,
-          senderType: 'user',
-          timestamp: new Date()
-        }
-      ];
-      localStorage.setItem(`ticket_${ticketId}_messages`, JSON.stringify(updatedMessages));
-      return updatedMessages;
-    });
+    // Добавляем сообщение с username
+    setMessages(prevMessages => [
+      ...prevMessages,
+      {
+        username: currentUsername,
+        content: messageInput,
+        senderType: 'user',
+        timestamp: new Date()
+      }
+    ]);
 
     if (socketRef.current) {
       socketRef.current.send(JSON.stringify(messageData));
@@ -140,13 +169,8 @@ const HelpTicket: React.FC = () => {
     }
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error || authError) {
-    return <div>{error || authError}</div>;
-  }
+  if (isLoading) return <div>Loading...</div>;
+  if (error || authError) return <div>{error || authError}</div>;
 
   return (
     <section className="bg-[#FBFBFB] text-[#1B1B1B]">
@@ -156,9 +180,7 @@ const HelpTicket: React.FC = () => {
           <div className="hidden lg:flex">
             <Link to="/help-ticket-create">
               <Button variant="default" className="ml-auto">
-                <span>
-                  <img src={Chat} alt="icon" />
-                </span>
+                <img src={Chat} alt="icon" />
                 <span>Submit new ticket</span>
               </Button>
             </Link>
@@ -172,18 +194,6 @@ const HelpTicket: React.FC = () => {
               onClick={() => setActiveTab('Tickets')}
             >
               Tickets
-            </button>
-            <button
-              className={`button-sidebar ${activeTab === 'Settings' ? 'font-bold' : ''}`}
-              onClick={() => setActiveTab('Settings')}
-            >
-              Settings
-            </button>
-            <button
-              className={`button-sidebar ${activeTab === 'FAQ' ? 'font-bold' : ''}`}
-              onClick={() => setActiveTab('FAQ')}
-            >
-              FAQ
             </button>
           </aside>
 
@@ -211,9 +221,9 @@ const HelpTicket: React.FC = () => {
                     >
                       <div className="flex justify-between items-center">
                         <span className={`font-semibold text-[14px] ${msg.senderType === 'admin' ? 'text-blue-500' : ''}`}>
-                          {msg.username || 'Unknown'}
+                          {msg.username || (msg.senderType === 'admin' ? 'Admin' : 'User')}
                         </span>
-                        <span className="text-[#71717A] text-[14px] pl-6">{formatTime(new Date(msg.timestamp))}</span>
+                        <span className="text-[#71717A] text-[14px] pl-6">{formatTime(msg.timestamp)}</span>
                       </div>
                       <div className="mt-1">
                         <p>{msg.content}</p>
@@ -222,24 +232,6 @@ const HelpTicket: React.FC = () => {
                   ))}
                 </div>
               </>
-            )}
-
-            {activeTab === 'Settings' && (
-              <div className="mt-6 text-[16px]">
-                <h2 className="text-[20px] font-semibold mb-4">Settings</h2>
-                <p>Here you can configure notification preferences, account settings, etc.</p>
-              </div>
-            )}
-
-            {activeTab === 'FAQ' && (
-              <div className="mt-6 text-[16px]">
-                <h2 className="text-[20px] font-semibold mb-4">Frequently Asked Questions</h2>
-                <ul className="list-disc pl-6 space-y-2">
-                  <li>How to create a new ticket?</li>
-                  <li>How to contact support?</li>
-                  <li>How to close a ticket?</li>
-                </ul>
-              </div>
             )}
           </div>
         </div>

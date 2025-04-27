@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Banner from "@/components/ui/banner";
+import { cn } from "@/lib/utils";
+import { createPaymentForm } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import PaymentMethods from "@/components/PaymentMethods";
 import { InputSearch } from "@/components/ui/search-input";
@@ -30,6 +32,7 @@ import {
 } from "@/components/ui/sheet";
 
 interface PriceOption {
+  id: number;
   price: string;
   count: string;
 }
@@ -42,6 +45,17 @@ interface PriceOption {
 //   active: boolean;
 //   priceOptions: PriceOption[];
 // }
+
+interface PaymentMethod {
+  gateway: string;
+  fee_percentage: number;
+  title: string;
+  description: string;
+  image_url: string;
+  category: string;
+  is_active: boolean;
+  is_hidden: boolean;
+}
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("all");
@@ -60,10 +74,11 @@ const Dashboard = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPaymentCategory, setSelectedPaymentCategory] = useState<string | null>(null);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(null);
   const [loadingText, setLoadingText] = useState("Complete payment in another tab");
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const { products, loading } = useProducts();
+  const [isOptionManuallySelected, setIsOptionManuallySelected] = useState(false);
 
   // Используем useState для выбранной опции подписки
   const [selectedProduct, setSelectedProduct] = useState<any>(null); 
@@ -81,28 +96,26 @@ const Dashboard = () => {
     }
   };
 
-  const handleMakePayment = () => {
-    if (!selectedPaymentMethod || !selectedPaymentCategory) return;
+  const handleMakePayment = async () => {
+    if (!selectedPaymentMethod || !selectedOption || !selectedProduct) return;
   
     setIsLoading(true);
   
-    if (selectedPaymentCategory === "cis") {
-      window.open("/buy-loading-cis", "_blank");
-    } else if (selectedPaymentCategory === "worldwide") {
-      setLoadingText("Receiving credentials");
-      window.open("/buy-loading-word", "_blank");
+    try {
+      const paymentPayload = {
+        subscription_price_id: Number(selectedOption.id),
+        gateway: selectedPaymentMethod.gateway,
+      };
   
-      setTimeout(() => {
-        setPurchasedSubscriptions(prev => [
-          ...prev,
-          {
-            avatar: selectedProduct.avatar,
-            title: selectedProduct.title,
-            description: selectedProduct.description,
-          }
-        ]);
-        setLoadingText("Complete payment in another tab");
-      }, 3000);
+      const response = await createPaymentForm(paymentPayload);
+  
+      console.log("Redirecting to payment URL:", response.url);
+      window.open(response.url, "_blank");
+    } catch (error) {
+      console.error("Payment creation failed:", error);
+      alert("Failed to initiate payment. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -110,9 +123,38 @@ const Dashboard = () => {
   //   setSelectedPaymentMethod(method);
   // };
 
+  const subscriptionPrice = useMemo(() => {
+    return selectedOption ? parseFloat(selectedOption.price) : 0;
+  }, [selectedOption]);
+  
+  const processingFee = useMemo(() => {
+    if (
+      !selectedPaymentMethod ||
+      !selectedOption ||
+      !isOptionManuallySelected ||
+      typeof selectedPaymentMethod.fee_percentage !== "number"
+    ) {
+      return 0;
+    }
+  
+    const feeRate = selectedPaymentMethod.fee_percentage / 100;
+    return +(subscriptionPrice * feeRate).toFixed(2);
+  }, [selectedPaymentMethod, subscriptionPrice, isOptionManuallySelected]);  
+  
+  const totalAmount = useMemo(() => {
+    return (subscriptionPrice + processingFee).toFixed(2);
+  }, [subscriptionPrice, processingFee]);  
+
   const handleOrderClick = (product: any) => {
     setSelectedProduct(product);
     setIsSheetOpen(true);
+    setIsOptionManuallySelected(false);
+
+    if (product.priceOptions && product.priceOptions.length > 0) {
+      setSelectedOption(product.priceOptions[0]);
+    } else {
+      setSelectedOption(null);
+    }
   };
 
   const handleCancel = () => {
@@ -136,14 +178,15 @@ const Dashboard = () => {
   // if (error) return <p>Error: {error.message}</p>;
 
   const handlePaymentMethodChange = (method: any) => {
-    setSelectedPaymentMethod(method.gateway);
-    setSelectedPaymentCategory(method.category);
-  };
+    setSelectedPaymentMethod(method);
+  };  
   
 
-  const subscriptionPrice = selectedOption ? parseFloat(selectedOption.price) : 0;
-  const processingFee = (subscriptionPrice * 0.05).toFixed(2); // 5% комиссии
-  const totalAmount = (subscriptionPrice + parseFloat(processingFee)).toFixed(2);
+  // const subscriptionPrice = selectedOption ? parseFloat(selectedOption.price) : 0;
+  // const processingFee = isOptionManuallySelected ? (subscriptionPrice * 0.05).toFixed(2) : null;
+  // const totalAmount = isOptionManuallySelected
+  //   ? (subscriptionPrice + parseFloat(processingFee!)).toFixed(2)
+  //   : subscriptionPrice.toFixed(2);
 
   return (
     <section className="container bg-[#FBFBFB] text-[#1B1B1B]">
@@ -243,9 +286,10 @@ const Dashboard = () => {
                   filteredProducts.map((product) => (
                     <Product
                       key={product.id}
-                      avatar="/default-avatar.png"
+                      avatar={product.avatar}
                       title={product.title}
                       description={product.description}
+                      site={product.site}
                       active={product.active}
                       priceOptions={product.priceOptions}
                       onOrderClick={handleOrderClick}
@@ -313,7 +357,13 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+      <Sheet open={isSheetOpen} onOpenChange={(open) => {
+        setIsSheetOpen(open);
+        if (!open) {
+          setSelectedOption(null);
+          setSelectedPaymentMethod(null);
+        }
+      }}>
         <SheetContent side="bottom">
           {isLoading ? (
             <>
@@ -365,7 +415,7 @@ const Dashboard = () => {
                       <div>
                         <SheetTitle>{selectedProduct ? selectedProduct.title : "Product Details"}</SheetTitle>
                       </div>
-                      <div className="w-[230px] md:w-[450px]">
+                      <div className="w-[230px] md:w-full">
                         <SheetDescription>{selectedProduct ? selectedProduct.description : "No description available."}</SheetDescription>
                       </div>
                     </div>
@@ -381,12 +431,22 @@ const Dashboard = () => {
                       {selectedProduct && selectedProduct.priceOptions.length > 0 && (
                         <div className="flex flex-col mt-2">
                           <Tabs className="w-full md:w-[476px]" value={selectedOption?.count || ""}>
-                            <TabsList className="grid w-full grid-cols-3 h-[58px]">
+                            <TabsList
+                              className={cn(
+                                "grid w-full h-[58px]",
+                                selectedProduct.priceOptions.length === 1 && "grid-cols-1",
+                                selectedProduct.priceOptions.length === 2 && "grid-cols-2",
+                                selectedProduct.priceOptions.length >= 3 && "grid-cols-3"
+                              )}
+                            >
                               {selectedProduct.priceOptions.map((option: PriceOption, index: number) => (
                                 <TabsTrigger 
                                   key={index} 
                                   value={option.count} 
-                                  onClick={() => setSelectedOption(option)}
+                                  onClick={() => {
+                                    setSelectedOption(option);
+                                    setIsOptionManuallySelected(true);
+                                  }}
                                 >
                                   <div className="flex flex-col">
                                     <span className="text-[14px]">{option.count}</span>
@@ -418,8 +478,8 @@ const Dashboard = () => {
                           <p>${subscriptionPrice}</p>
                         </div>
                         <div className="flex justify-between">
-                          <p>Processing fee (5%)</p>
-                          <p>${processingFee}</p>
+                          <p>Processing fee ({selectedPaymentMethod?.fee_percentage || 0}%)</p>
+                          <p>{isOptionManuallySelected ? `$${processingFee}` : '—'}</p>
                         </div>
                         <div className="flex justify-between font-semibold text-[18px] mt-4">
                           <p>Total</p>
