@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import Banner from "@/components/ui/banner";
+import axios from 'axios';
 import { cn } from "@/lib/utils";
 import { createPaymentForm } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -96,21 +97,39 @@ const Dashboard = () => {
     }
   };
 
+  // функция для обработки платежа
   const handleMakePayment = async () => {
     if (!selectedPaymentMethod || !selectedOption || !selectedProduct) return;
-  
+
     setIsLoading(true);
-  
+
     try {
       const paymentPayload = {
         subscription_price_id: Number(selectedOption.id),
         gateway: selectedPaymentMethod.gateway,
+        amount_usd: parseFloat(selectedOption.price), // это работает ТОЛЬКО если цена в ДОЛЛАРАХ!
+        amount_rub: parseFloat(selectedOption.price) * 75, // конвертация в РУБЛИ!
+        promocode: "",
+        status: "created",
+        commission: processingFee,
+        gateway_payment_id: "", // это трубется или нет?
+        arbitrary_data: {}, // нужно передовать доп данные и какие?
       };
-  
-      const response = await createPaymentForm(paymentPayload);
-  
-      console.log("Redirecting to payment URL:", response.url);
-      window.open(response.url, "_blank");
+
+      const response = await axios.post(
+        'https://collaboo.co/api-payment/api/v1/payment-form/', 
+        paymentPayload
+      );
+
+      // Получаем наш уникальный payment URL
+      const paymentUrl = response.data.url;
+
+      if (paymentUrl) {
+        console.log("Redirecting to payment URL:", paymentUrl);
+        window.open(paymentUrl, "_blank");
+      } else {
+        alert("Payment URL not found.");
+      }
     } catch (error) {
       console.error("Payment creation failed:", error);
       alert("Failed to initiate payment. Please try again.");
@@ -118,6 +137,7 @@ const Dashboard = () => {
       setIsLoading(false);
     }
   };
+
 
   // const handlePaymentMethodChange = (method: string) => {
   //   setSelectedPaymentMethod(method);
