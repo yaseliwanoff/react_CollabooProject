@@ -37,14 +37,14 @@ export function RegisterForm({ className, ...props }: React.ComponentProps<"form
     const success = await registerWithEmail(email, password);
 
     if (success) {
-      navigate("/login");
+      navigate("/");
     }
   };
 
   const handleGoogleRegister = async () => {
     const success = await registerWithGoogle();
     if (success) {
-      navigate("/login");
+      navigate("/");
     }
   };
 

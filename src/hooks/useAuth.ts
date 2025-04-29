@@ -1,12 +1,24 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth, createUserWithEmailAndPassword, signInWithPopup, googleProvider, signOut } from "@/lib/firebase";
-import { signInWithEmailAndPassword, getIdToken, onAuthStateChanged } from "firebase/auth";
+import {
+  auth,
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  googleProvider,
+  signOut,
+} from "@/lib/firebase";
+import {
+  signInWithEmailAndPassword,
+  getIdToken,
+  onAuthStateChanged,
+} from "firebase/auth";
 import axios from "axios";
 
 export function useAuth() {
-  const [username, setUsername] = useState<string>('');
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem("authToken"));
+  const [username, setUsername] = useState<string>("");
+  const [token, setToken] = useState<string | null>(() =>
+    localStorage.getItem("authToken")
+  );
   const navigate = useNavigate();
   const [isAuthReady, setIsAuthReady] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -14,45 +26,12 @@ export function useAuth() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        setUsername(user.displayName || 'User'); // Устанавливаем имя пользователя
-      } else {
-        setUsername(''); // Очистить имя пользователя при выходе
-      }
-      setIsAuthReady(true);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  // Функция для получения актуального токена
-  const getUserToken = async () => {
-    if (auth.currentUser) {
-      try {
-        const newToken = await getIdToken(auth.currentUser, true); // Принудительное обновление токена
+        setUsername(user.displayName || "User");
+        const newToken = await getIdToken(user, true);
         localStorage.setItem("authToken", newToken);
         setToken(newToken);
-        return newToken;
-      } catch (err) {
-        console.error("Error fetching user token:", err);
-        setError("Failed to retrieve token: ");
-      }
-    }
-    return null;
-  };
-
-  // Следим за состоянием аутентификации пользователя
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        try {
-          const newToken = await getIdToken(user, true); // Принудительное обновление токена
-          localStorage.setItem("authToken", newToken);
-          setToken(newToken);
-        } catch (err) {
-          console.error("Error fetching token:", err);
-          setError("Authentication error: ");
-        }
       } else {
+        setUsername("");
         localStorage.removeItem("authToken");
         setToken(null);
       }
@@ -62,26 +41,47 @@ export function useAuth() {
     return () => unsubscribe();
   }, []);
 
+  const getUserToken = async () => {
+    if (auth.currentUser) {
+      try {
+        const newToken = await getIdToken(auth.currentUser, true);
+        localStorage.setItem("authToken", newToken);
+        setToken(newToken);
+        return newToken;
+      } catch (err) {
+        console.error("Error fetching user token:", err);
+        setError("Failed to retrieve token");
+      }
+    }
+    return null;
+  };
+
   const logout = async () => {
     try {
-      await signOut(auth); // Выход из аккаунта
-      localStorage.removeItem("authToken"); // Удаляем токен из локального хранилища
-      setToken(null); // Обновляем состояние токена
+      await signOut(auth);
+      localStorage.removeItem("authToken");
+      setToken(null);
       navigate("/login");
     } catch (err) {
       console.error("Error signing out:", err);
-      setError("Failed to sign out: ");
+      setError("Failed to sign out");
     }
   };
 
-  // Регистрация с email и паролем
-  const registerWithEmail = async (email: string, password: string): Promise<boolean> => {
+  const registerWithEmail = async (
+    email: string,
+    password: string
+  ): Promise<boolean> => {
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const user = userCredential.user;
-  
+
       const idToken = await getIdToken(user);
-  
+
       const response = await axios.post(
         "https://collaboo.co/api-user/api/v1/user/",
         {
@@ -99,12 +99,10 @@ export function useAuth() {
         }
       );
 
-      console.log('Response status:', response.status);
-  
       if (response.status === 200 || response.status === 201) {
         console.log("✅ User created on the server");
-        await getUserToken();
-        return true;
+        const newToken = await getUserToken(); // ждём Promise
+        return Boolean(newToken);
       } else {
         console.error("❌ Error creating user on server:", response.data);
         setError("Failed to create user on server");
@@ -121,15 +119,14 @@ export function useAuth() {
     }
   };
 
-  // Регистрация через Google
   const registerWithGoogle = async (): Promise<boolean> => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
-  
+
       if (user) {
-        const idToken = await getIdToken(user); // получаем Firebase ID токен
-  
+        const idToken = await getIdToken(user);
+
         const userData = {
           user_id: user.uid,
           username: user.displayName || "Anonymous",
@@ -137,7 +134,7 @@ export function useAuth() {
           image_url: user.photoURL || "",
           trc20_address: "",
         };
-  
+
         const response = await axios.post(
           "https://collaboo.co/api-user/api/v1/user/",
           userData,
@@ -147,18 +144,18 @@ export function useAuth() {
             },
           }
         );
-  
+
         if (response.status === 200 || response.status === 201) {
           console.log("✅ Google user created on the server");
-          await getUserToken(); // обновим токен
-          return true;
+          const newToken = await getUserToken(); // ждём Promise
+          return Boolean(newToken);
         } else {
           console.error("❌ Server error during Google registration:", response.data);
           setError("Server error during Google registration");
           return false;
         }
       }
-  
+
       return false;
     } catch (err) {
       console.error("❌ registerWithGoogle error:", err);
@@ -167,17 +164,22 @@ export function useAuth() {
     }
   };
 
-  // Логин с email и паролем
-  const loginWithEmail = async (email: string, password: string): Promise<boolean> => {
+  const loginWithEmail = async (
+    email: string,
+    password: string
+  ): Promise<boolean> => {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const user = userCredential.user;
-  
-      // Получаем Firebase токен и сохраняем
+
       const idToken = await getIdToken(user);
       localStorage.setItem("authToken", idToken);
-      setToken(idToken); // если нужно
-  
+      setToken(idToken);
+
       return true;
     } catch (err: any) {
       console.error("Login error:", err);
@@ -186,13 +188,13 @@ export function useAuth() {
     }
   };
 
-  // Логин через Google
   const loginWithGoogle = async (): Promise<boolean> => {
     try {
       await signInWithPopup(auth, googleProvider);
-      await getUserToken();
-      return true;
+      const newToken = await getUserToken(); // ждём Promise
+      return Boolean(newToken);
     } catch (err) {
+      console.error("Login with Google error:", err);
       setError(err instanceof Error ? err.message : "An error occurred");
       return false;
     }

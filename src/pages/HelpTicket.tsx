@@ -62,11 +62,10 @@ const HelpTicket: React.FC = () => {
 
   useEffect(() => {
     if (!isAuthReady || !ticketId || !token) return;
-
+  
     const fetchTicket = async () => {
       try {
         const apiUrl = `${apiRoutes.helpTicket}/?ticket_id=${ticketId}`;
-
         const response = await fetch(apiUrl, {
           method: "GET",
           headers: {
@@ -74,11 +73,11 @@ const HelpTicket: React.FC = () => {
             "Content-Type": "application/json"
           }
         });
-
+  
         if (response.ok) {
           const data = await response.json();
           setTicket(data);
-
+  
           // Загружаем сообщения отдельно
           await fetchMessages(ticketId, token);
         } else {
@@ -91,26 +90,26 @@ const HelpTicket: React.FC = () => {
         setIsLoading(false);
       }
     };
-
+  
     fetchTicket();
-
+  
     // Устанавливаем WebSocket соединение
     socketRef.current = new WebSocket(`${SOCKET_URL}${ticketId}`);
-
+  
     socketRef.current.onopen = () => {
       console.log('WebSocket connected');
       if (socketRef.current && token) {
         socketRef.current.send(JSON.stringify({ action: 'authenticate', token }));
       }
     };
-
+  
     // Обработчик для WebSocket сообщений
     socketRef.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data?.message && data.ticketId === ticketId) {
         const { username, content, senderType, timestamp } = data.message;
-
-        // Обновляем сообщения через setMessages
+  
+        // Добавляем новое сообщение
         setMessages(prev => [
           ...prev,
           {
@@ -122,9 +121,16 @@ const HelpTicket: React.FC = () => {
         ]);
       }
     };
-
+  
     socketRef.current.onerror = (err) => {
       console.error('WebSocket error:', err);
+      // Попробуй переподключиться через некоторое время
+      setTimeout(() => {
+        if (socketRef.current?.readyState !== WebSocket.OPEN) {
+          socketRef.current = new WebSocket(`${SOCKET_URL}${ticketId}`);
+          console.log("Reconnecting WebSocket...");
+        }
+      }, 5000); // Пытаемся переподключиться через 5 секунд
     };
 
     socketRef.current.onclose = () => {
@@ -161,11 +167,12 @@ const HelpTicket: React.FC = () => {
       }
     ]);
 
-    if (socketRef.current) {
+    // Проверка состояния WebSocket перед отправкой
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
       socketRef.current.send(JSON.stringify(messageData));
       setMessageInput('');
     } else {
-      setError('WebSocket connection is not established.');
+      setError('WebSocket connection is not established or is closed.');
     }
   };
 
@@ -188,7 +195,7 @@ const HelpTicket: React.FC = () => {
         </div>
 
         <div className="lg:flex h-screen text-[Inter]">
-          <aside className="w-1/5 hidden lg:flex flex-col text-[14px] space-y-2 pr-4 border-r border-[#E5E7EB]">
+          <aside className="w-1/5 hidden lg:flex flex-col text-[14px] space-y-2 pr-4">
             <button
               className={`button-sidebar ${activeTab === 'Tickets' ? 'font-bold' : ''}`}
               onClick={() => setActiveTab('Tickets')}

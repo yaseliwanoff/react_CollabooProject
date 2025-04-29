@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import Dashboard from '@/pages/Dashboard';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
+import Forgot from '@/pages/Forgot';
 import BuyLoadingCIS from '@/pages/BuyLoadingCIS';
 import BuyLoadingWord from '@/pages/BuyLoadingWord';
 import Profile from '@/pages/Profile';
@@ -16,6 +17,7 @@ const AppRoutes: React.FC = () => {
     <Routes>
       <Route path="/" element={<Dashboard />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/forgot-password" element={<Forgot />} />
       <Route path="/register" element={<Register />} />
       <Route path='/buy-loading-cis' element={<BuyLoadingCIS />} />
       <Route path='/buy-loading-word' element={<BuyLoadingWord />} />

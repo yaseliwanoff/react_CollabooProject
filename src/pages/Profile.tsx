@@ -18,7 +18,7 @@ const reservedUsernames = ["admin", "administrator", "moderator", "support"];
 const Profile: React.FC = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const [newPassword, setNewPassword] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const { token } = useAuth();
   const { userProfile: userProfileFromApi, loading } = useUserProfile(token);
   const [username, setUsername] = useState(userProfileFromApi?.username || "");
@@ -31,19 +31,86 @@ const Profile: React.FC = () => {
   const [avatarPreview, setAvatarPreview] = useState<string>(AvatarImg);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  const handleSave = async () => {
-    if (!token) return;
+  const [currentPassword, setCurrentPassword] = useState<string>('');
+  const [newPasswordConfirm, setNewPasswordConfirm] = useState<string>('');
+  const [savingPassword, setSavingPassword] = useState(false);
+  const [passwordStatusMessage, setPasswordStatusMessage] = useState<string | null>(null);
+
+  // Обработчик для изменения текущего пароля
+  const handleCurrentPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCurrentPassword(e.target.value);
+  };
+
+  // Обработчик для изменения нового пароля
+  const handleNewPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewPassword(e.target.value);
+
+    // Проверка длины пароля
+    if (e.target.value.length < 8) {
+      setError('Your password must contain at least 8 characters');
+    } else {
+      setError('');
+    }
+  };
+
+  // Обработчик для отправки запроса на сервер
+  const handleChangePassword = async () => {
+    // Проверка, что новый пароль и его подтверждение совпадают
+    console.log("Current password:", currentPassword);
+    console.log("New password:", newPassword);
   
-    const lowerUsername = username.trim().toLowerCase();
-  
-    if (reservedUsernames.includes(lowerUsername)) {
-      setStatusMessage("This username is reserved and cannot be used.");
+    // Проверка, что новый пароль не пустой
+    if (newPassword.length < 8) {
+      setError("Your new password must be at least 8 characters.");
+      return;
+    }
+
+    // Если текущий пароль не заполнен
+    if (currentPassword.length < 8) {
+      setError("Current password must be at least 8 characters.");
       return;
     }
   
     try {
+      // Отправляем запрос на сервер для смены пароля
+      const response = await axios.post(
+        "https://collaboo.co/api-user/api/v1/user/refresh-password-auth",
+        {
+          password_old: currentPassword,
+          password_new: newPassword,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        setError(null);
+        setStatusMessage("Password successfully changed");
+      } else {
+        setError("Failed to change password");
+      }
+    } catch (err: any) {
+      console.error("Error changing password:", err);
+      setError("An error occurred while changing the password");
+    }
+  };
+
+  const handleSave = async () => {
+    if (!token) return;
+
+    const lowerUsername = username.trim().toLowerCase();
+
+    if (reservedUsernames.includes(lowerUsername)) {
+      setStatusMessage("This username is reserved and cannot be used.");
+      return;
+    }
+
+    try {
       setSaving(true);
-  
+
       // Сначала загружаем аватар, если он есть
       if (avatarFile) {
         const formData = new FormData();
@@ -57,9 +124,9 @@ const Profile: React.FC = () => {
             },
             body: formData,
           });
-      
+
           const data = await response.json();
-      
+
           if (response.ok && data.filepath) {
             console.log("Аватар загружен:", data.filepath);
             setAvatarPreview(data.filepath);
@@ -81,8 +148,8 @@ const Profile: React.FC = () => {
           setStatusMessage("Failed to upload avatar");
           return;
         }
-      }      
-  
+      }
+
       // Затем сохраняем username, даже если он пустой
       const response = await axios.put(
         "https://collaboo.co/api-user/api/v1/user/",
@@ -93,7 +160,7 @@ const Profile: React.FC = () => {
           },
         }
       );
-  
+
       if (response.status === 200) {
         setStatusMessage("Username successfully updated");
       } else {
@@ -139,18 +206,18 @@ const Profile: React.FC = () => {
     }
   }, [statusMessage]);
 
-  const handleNewPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setNewPassword(value);
+  // const handleNewPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const value = e.target.value;
+  //   setNewPassword(value);
 
-    // Проверка длины пароля
-    if (value.length < 8) {
-      setError('Your password must contain at least 8 characters');
-    } else {
-      setError('');
-      // Тут можно реализовать логику замену пароля
-    }
-  };
+  //   // Проверка длины пароля
+  //   if (value.length < 8) {
+  //     setError('Your password must contain at least 8 characters');
+  //   } else {
+  //     setError('');
+  //     // Тут можно реализовать логику замену пароля
+  //   }
+  // };
 
   return (
     <section className="container font-[Inter] font-normal text-[#18181B]">
@@ -226,25 +293,25 @@ const Profile: React.FC = () => {
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (!file) return;
-                        
+
                           const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
                           const maxSizeMB = 5;
                           const maxSizeBytes = maxSizeMB * 1024 * 1024;
-                        
+
                           if (!allowedTypes.includes(file.type)) {
                             setStatusMessage("❌ Only JPEG and PNG images are allowed.");
                             return;
                           }
-                        
+
                           if (file.size > maxSizeBytes) {
                             setStatusMessage(`❌ Image size must be less than ${maxSizeMB}MB.`);
                             return;
                           }
-                        
+
                           setAvatarFile(file);
                           setAvatarPreview(URL.createObjectURL(file));
                           setStatusMessage(null); // очищаем ошибку
-                        }}                        
+                        }}
                         className="hidden"
                       />
                     </div>
@@ -307,11 +374,17 @@ const Profile: React.FC = () => {
                     <div className='md:w-1/2 flex flex-col gap-5 mt-4 md:mt-0'>
                       <div>
                         <div className='flex justify-between'>
-                          <h2 className='text-[14px] font-semibold'>Change password</h2>
+                          <h2 className='text-[14px] font-semibold'>Current password</h2>
                           <button className='underline hidden md:flex font-normal text-[14px] text-[#71717A]'>Forgot your password?</button>
                         </div>
                         <div>
-                          <Input className='mt-1' placeholder='Enter password…' />
+                          <Input
+                            className='mt-1'
+                            type='password'
+                            placeholder='Enter current password…'
+                            value={currentPassword} // Привязываем к состоянию
+                            onChange={handleCurrentPasswordChange} // Обработчик для обновления состояния
+                          />
                           <button className='underline mt-1 float-right flex md:hidden font-normal text-[14px] text-[#71717A]'>Forgot your password?</button>
                         </div>
                       </div>
@@ -320,20 +393,30 @@ const Profile: React.FC = () => {
                           <h2 className='text-[14px] font-semibold'>New password</h2>
                         </div>
                         <div>
-                          <Input 
+                          <Input
+                            type='password'
                             className={`mt-1 ${error ? 'border-red-500' : ''}`}
-                            placeholder='Enter new password…' 
-                            value={newPassword} 
-                            onChange={handleNewPasswordChange} 
+                            placeholder='Confirm new password…' 
+                            value={newPassword}  // Bind the value to the state
+                            onChange={handleNewPasswordChange}  // Update state on change
                           />
-                          {error && <p className='text-[#71717A] mt-1 text-sm'>{error}</p>}
+                          {error && <p className="text-[#71717A] mt-1 text-sm">{error}</p>}
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
+                {passwordStatusMessage && (
+                  <p
+                    className={`mt-2 text-sm ${passwordStatusMessage.includes("successfully") ? 'text-green-500' : 'text-red-500'}`}
+                  >
+                    {passwordStatusMessage}
+                  </p>
+                )}
                 <div className='flex mt-6 justify-end'>
-                  <Button variant={"default"}>Save</Button>
+                  <Button onClick={handleChangePassword} disabled={savingPassword}>
+                    {savingPassword ? "Saving..." : "Save"}
+                  </Button>
                 </div>
               </div>
             )}
