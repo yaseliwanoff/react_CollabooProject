@@ -56,14 +56,40 @@ export function useAuth() {
     return null;
   };
 
+  // Следим за состоянием аутентификации пользователя
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const newToken = await getIdToken(user, true); // Принудительное обновление токена
+          localStorage.setItem("authToken", newToken);
+          setToken(newToken);
+        } catch (err) {
+          console.error("Error fetching token:", err);
+          setError("Authentication error: ");
+        }
+      } else {
+        localStorage.removeItem("authToken");
+        setToken(null);
+      }
+      setIsAuthReady(true);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   const logout = async () => {
     try {
+      await signOut(auth); // Выход из аккаунта
+      localStorage.removeItem("authToken"); // Удаляем токен из локального хранилища
+      setToken(null); // Обновляем состояние токена
       await signOut(auth);
       localStorage.removeItem("authToken");
       setToken(null);
       navigate("/login");
     } catch (err) {
       console.error("Error signing out:", err);
+      setError("Failed to sign out: ");
       setError("Failed to sign out");
     }
   };
