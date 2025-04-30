@@ -2,7 +2,6 @@ import { useState, useMemo } from "react";
 import Banner from "@/components/ui/banner";
 import axios from 'axios';
 import { cn } from "@/lib/utils";
-import { createPaymentForm } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import PaymentMethods from "@/components/PaymentMethods";
 import { InputSearch } from "@/components/ui/search-input";
@@ -61,7 +60,7 @@ interface PaymentMethod {
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [purchasedSubscriptions, setPurchasedSubscriptions] = useState<any[]>([]);
+  const [purchasedSubscriptions] = useState<any[]>([]);
   const [statusTexts] = useState<string[]>(Array(5).fill("Expired"));
   const data = [
     { date: "04.02.2025", subscription: "#p1502251 Mobbin - 1 month", price: "3$" },
@@ -74,9 +73,9 @@ const Dashboard = () => {
   const [activeSection, setActiveSection] = useState("subscriptions");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedPaymentCategory, setSelectedPaymentCategory] = useState<string | null>(null);
+  // const [selectedPaymentCategory, setSelectedPaymentCategory] = useState<string | null>(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(null);
-  const [loadingText, setLoadingText] = useState("Complete payment in another tab");
+  const [loadingText] = useState("Complete payment in another tab");
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const { products, loading } = useProducts();
   const [isOptionManuallySelected, setIsOptionManuallySelected] = useState(false);

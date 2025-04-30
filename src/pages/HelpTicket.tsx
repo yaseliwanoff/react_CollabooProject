@@ -11,7 +11,8 @@ const SOCKET_URL = socketRoutes.ticketWS;
 const HelpTicket: React.FC = () => {
   const [activeTab, setActiveTab] = useState('Tickets');
   const { ticketId } = useParams<{ ticketId: string }>();
-  const { token, isAuthReady, error: authError, token: userToken } = useAuth();
+  // const { token, isAuthReady, error: authError, token: userToken } = useAuth();
+  const { token, isAuthReady, error: authError} = useAuth();
   const [ticket, setTicket] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -20,7 +21,7 @@ const HelpTicket: React.FC = () => {
   const socketRef = useRef<WebSocket | null>(null);
 
   // Хранение имени пользователя (username) для отправки сообщений
-  const [username, setUsername] = useState<string | null>(null);
+  const [username] = useState<string | null>(null);
 
   const formatTime = (date: Date | string) => {
     const d = typeof date === 'string' ? new Date(date) : date;

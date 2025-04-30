@@ -32,9 +32,9 @@ const Profile: React.FC = () => {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const [currentPassword, setCurrentPassword] = useState<string>('');
-  const [newPasswordConfirm, setNewPasswordConfirm] = useState<string>('');
-  const [savingPassword, setSavingPassword] = useState(false);
-  const [passwordStatusMessage, setPasswordStatusMessage] = useState<string | null>(null);
+  // const [newPasswordConfirm, setNewPasswordConfirm] = useState<string>('');
+  const [savingPassword] = useState(false);
+  const [passwordStatusMessage] = useState<string | null>(null);
 
   // Обработчик для изменения текущего пароля
   const handleCurrentPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
