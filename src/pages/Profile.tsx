@@ -26,7 +26,8 @@ const Profile: React.FC = () => {
   const [saving, setSaving] = useState(false);
 
   const [trc20Address, setTrc20Address] = useState(userProfileFromApi?.trc20_address || "");
-  const [userProfile, setUserProfile] = useState<{ username: string, image_url: string } | null>(null);
+  // const [setUserProfile] = useState<{ username: string, image_url: string } | null>(null);
+  // const [userProfile, setUserProfile] = useState<{ username: string, image_url: string } | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>(AvatarImg);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -115,7 +116,6 @@ const Profile: React.FC = () => {
       if (avatarFile) {
         const formData = new FormData();
         formData.append('file', avatarFile);
-      
         try {
           const response = await fetch("https://collaboo.co/api-user/api/v1/user/image", {
             method: 'POST',
@@ -130,14 +130,13 @@ const Profile: React.FC = () => {
           if (response.ok && data.filepath) {
             console.log("Аватар загружен:", data.filepath);
             setAvatarPreview(data.filepath);
-
-            setUserProfile((prevProfile) => {
-              if (!prevProfile) return null;
-              return {
-                ...prevProfile,
-                image_url: data.filepath,
-              };
-            });
+            // setUserProfile((prevProfile) => {
+            //   if (!prevProfile) return null;
+            //   return {
+            //     ...prevProfile,
+            //     image_url: data.filepath,
+            //   };
+            // });
           } else {
             console.error("Ошибка при загрузке:", data);
             setStatusMessage("Failed to upload avatar");
