@@ -10,6 +10,7 @@ import Product from "@/components/product";
 import PurchasedProduct from "@/components/PurchasedProduct";
 import Search from "@/assets/images/svg/search.svg";
 import { useProducts } from "@/hooks/useProducts";
+import { useAuth } from "@/hooks/useAuth";
 import {
   Tabs,
   TabsList,
@@ -62,6 +63,7 @@ const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [purchasedSubscriptions] = useState<any[]>([]);
   const [statusTexts] = useState<string[]>(Array(5).fill("Expired"));
+  const { getUserToken } = useAuth();
   const data = [
     { date: "04.02.2025", subscription: "#p1502251 Mobbin - 1 month", price: "3$" },
     { date: "01.12.2024", subscription: "#p1502251 Mobbin - 1 month", price: "3$" },
@@ -103,21 +105,27 @@ const Dashboard = () => {
     setIsLoading(true);
 
     try {
+      const token = await getUserToken();
       const paymentPayload = {
         subscription_price_id: Number(selectedOption.id),
         gateway: selectedPaymentMethod.gateway,
-        amount_usd: parseFloat(selectedOption.price), // это работает ТОЛЬКО если цена в ДОЛЛАРАХ!
-        amount_rub: parseFloat(selectedOption.price) * 75, // конвертация в РУБЛИ!
+        amount_usd: parseFloat(selectedOption.price),
+        amount_rub: parseFloat(selectedOption.price) * 75,
         promocode: "",
         status: "created",
         commission: processingFee,
-        gateway_payment_id: "", // это трубется или нет?
-        arbitrary_data: {}, // нужно передовать доп данные и какие?
+        gateway_payment_id: "",
+        arbitrary_data: {},
       };
 
       const response = await axios.post(
-        'https://collaboo.co/api-payment/api/v1/payment-form/', 
-        paymentPayload
+        'https://collaboo.co/api-payment/api/v1/payment-form/',
+        paymentPayload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       // Получаем наш уникальный payment URL
