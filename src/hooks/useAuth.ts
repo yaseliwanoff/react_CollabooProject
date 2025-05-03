@@ -23,6 +23,12 @@ export function useAuth() {
   const [isAuthReady, setIsAuthReady] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  const setAuthCookie = (token: string) => {
+    const expires = new Date();
+    expires.setTime(expires.getTime() + 60 * 60 * 1000); // 1 час (Добавленное время)
+    document.cookie = `authToken=${token}; path=/; expires=${expires.toUTCString()}; Secure; SameSite=Strict`;
+  };  
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -56,40 +62,15 @@ export function useAuth() {
     return null;
   };
 
-  // Следим за состоянием аутентификации пользователя
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        try {
-          const newToken = await getIdToken(user, true); // Принудительное обновление токена
-          localStorage.setItem("authToken", newToken);
-          setToken(newToken);
-        } catch (err) {
-          console.error("Error fetching token:", err);
-          setError("Authentication error: ");
-        }
-      } else {
-        localStorage.removeItem("authToken");
-        setToken(null);
-      }
-      setIsAuthReady(true);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
   const logout = async () => {
     try {
-      await signOut(auth); // Выход из аккаунта
-      localStorage.removeItem("authToken"); // Удаляем токен из локального хранилища
-      setToken(null); // Обновляем состояние токена
       await signOut(auth);
       localStorage.removeItem("authToken");
+      document.cookie = "authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; Secure; SameSite=Strict";
       setToken(null);
       navigate("/login");
     } catch (err) {
       console.error("Error signing out:", err);
-      setError("Failed to sign out: ");
       setError("Failed to sign out");
     }
   };
@@ -128,6 +109,10 @@ export function useAuth() {
       if (response.status === 200 || response.status === 201) {
         console.log("✅ User created on the server");
         const newToken = await getUserToken(); // ждём Promise
+        if (newToken) {
+          setAuthCookie(newToken);
+        }
+
         return Boolean(newToken);
       } else {
         console.error("❌ Error creating user on server:", response.data);
@@ -174,6 +159,10 @@ export function useAuth() {
         if (response.status === 200 || response.status === 201) {
           console.log("✅ Google user created on the server");
           const newToken = await getUserToken(); // ждём Promise
+          if (newToken) {
+            setAuthCookie(newToken);
+          }
+          
           return Boolean(newToken);
         } else {
           console.error("❌ Server error during Google registration:", response.data);
@@ -205,6 +194,7 @@ export function useAuth() {
       const idToken = await getIdToken(user);
       localStorage.setItem("authToken", idToken);
       setToken(idToken);
+      setAuthCookie(idToken);
 
       return true;
     } catch (err: any) {
@@ -218,6 +208,10 @@ export function useAuth() {
     try {
       await signInWithPopup(auth, googleProvider);
       const newToken = await getUserToken(); // ждём Promise
+      if (newToken) {
+        setAuthCookie(newToken);
+      }
+      
       return Boolean(newToken);
     } catch (err) {
       console.error("Login with Google error:", err);
