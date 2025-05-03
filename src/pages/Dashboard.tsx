@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Banner from "@/components/ui/banner";
 import axios from 'axios';
 import { cn } from "@/lib/utils";
@@ -10,7 +10,6 @@ import Product from "@/components/product";
 import PurchasedProduct from "@/components/PurchasedProduct";
 import Search from "@/assets/images/svg/search.svg";
 import { useProducts } from "@/hooks/useProducts";
-import { useAuth } from "@/hooks/useAuth";
 import {
   Tabs,
   TabsList,
@@ -61,9 +60,8 @@ interface PaymentMethod {
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [purchasedSubscriptions] = useState<any[]>([]);
+  const [purchasedSubscriptions, setPurchasedSubscriptions] = useState<any[]>([]);
   const [statusTexts] = useState<string[]>(Array(5).fill("Expired"));
-  const { getUserToken } = useAuth();
   const data = [
     { date: "04.02.2025", subscription: "#p1502251 Mobbin - 1 month", price: "3$" },
     { date: "01.12.2024", subscription: "#p1502251 Mobbin - 1 month", price: "3$" },
@@ -105,27 +103,21 @@ const Dashboard = () => {
     setIsLoading(true);
 
     try {
-      const token = await getUserToken();
       const paymentPayload = {
         subscription_price_id: Number(selectedOption.id),
         gateway: selectedPaymentMethod.gateway,
-        amount_usd: parseFloat(selectedOption.price),
-        amount_rub: parseFloat(selectedOption.price) * 75,
+        amount_usd: parseFloat(selectedOption.price), // это работает ТОЛЬКО если цена в ДОЛЛАРАХ!
+        amount_rub: parseFloat(selectedOption.price) * 75, // конвертация в РУБЛИ!
         promocode: "",
         status: "created",
         commission: processingFee,
-        gateway_payment_id: "",
-        arbitrary_data: {},
+        gateway_payment_id: "", // это трубется или нет?
+        arbitrary_data: {}, // нужно передовать доп данные и какие?
       };
 
       const response = await axios.post(
-        'https://collaboo.co/api-payment/api/v1/payment-form/',
-        paymentPayload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        'https://collaboo.co/api-payment/api/v1/payment-form/', 
+        paymentPayload
       );
 
       // Получаем наш уникальный payment URL
@@ -144,6 +136,19 @@ const Dashboard = () => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    const fetchPurchasedSubscriptions = async () => {
+      try {
+        const response = await axios.get("https://collaboo.co/api-subs/api/v1/sub-layout/get_active_sub");
+        setPurchasedSubscriptions(response.data);
+      } catch (error) {
+        console.error("Failed to fetch purchased subscriptions:", error);
+      }
+    };
+  
+    fetchPurchasedSubscriptions();
+  }, []);  
 
 
   // const handlePaymentMethodChange = (method: string) => {
@@ -243,10 +248,12 @@ const Dashboard = () => {
                   {purchasedSubscriptions.map((sub, index) => (
                     <PurchasedProduct
                       key={index}
-                      avatar={sub.avatar}
                       title={sub.title}
                       description={sub.description}
-                    />
+                      avatar={sub.links[0]?.href || ""}
+                      date_end={sub.date_end}
+                      links={sub.links}
+                    />              
                   ))}
                 </div>
                 <div className='w-[100%] h-[1px] bg-[#E4E4E7] my-[32px]'></div>
