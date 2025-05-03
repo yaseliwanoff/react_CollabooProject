@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import Drag from "@/assets/images/svg/Drag.svg";
+import { Link } from 'react-router-dom';
 import AvatarImg from "@/assets/images/png/avatar.png";
 import {
   Tabs,
@@ -374,7 +375,10 @@ const Profile: React.FC = () => {
                       <div>
                         <div className='flex justify-between'>
                           <h2 className='text-[14px] font-semibold'>Current password</h2>
-                          <button className='underline hidden md:flex font-normal text-[14px] text-[#71717A]'>Forgot your password?</button>
+                          {/* <button className='underline hidden md:flex font-normal text-[14px] text-[#71717A]'>Forgot your password?</button> */}
+                          <Link to="/forgot-password" className='underline hidden md:flex font-normal text-[14px] text-[#71717A]'>
+                            Forgot your password?
+                          </Link>
                         </div>
                         <div>
                           <Input
