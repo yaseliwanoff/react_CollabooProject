@@ -3,6 +3,8 @@ import Banner from "@/components/ui/banner";
 import axios from 'axios';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { getIdToken } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 import PaymentMethods from "@/components/PaymentMethods";
 import { InputSearch } from "@/components/ui/search-input";
 import { Input } from "@/components/ui/input";
@@ -103,24 +105,37 @@ const Dashboard = () => {
     setIsLoading(true);
 
     try {
+      const user = auth.currentUser;
+      if (!user) {
+        alert("You must be signed in to make a payment.");
+        setIsLoading(false);
+        return;
+      }
+
+      const token = await getIdToken(user, true); // 🔑 Получаем токен Firebase
+
       const paymentPayload = {
         subscription_price_id: Number(selectedOption.id),
         gateway: selectedPaymentMethod.gateway,
-        amount_usd: parseFloat(selectedOption.price), // это работает ТОЛЬКО если цена в ДОЛЛАРАХ!
-        amount_rub: parseFloat(selectedOption.price) * 75, // конвертация в РУБЛИ!
+        amount_usd: parseFloat(selectedOption.price),
+        amount_rub: parseFloat(selectedOption.price) * 75,
         promocode: "",
         status: "created",
         commission: processingFee,
-        gateway_payment_id: "", // это трубется или нет?
-        arbitrary_data: {}, // нужно передовать доп данные и какие?
+        gateway_payment_id: "",
+        arbitrary_data: {},
       };
 
       const response = await axios.post(
-        'https://collaboo.co/api-payment/api/v1/payment-form/', 
-        paymentPayload
+        'https://collaboo.co/api-payment/api/v1/payment-form/',
+        paymentPayload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // 🔐 Добавляем токен в заголовки
+          },
+        }
       );
 
-      // Получаем наш уникальный payment URL
       const paymentUrl = response.data.url;
 
       if (paymentUrl) {
